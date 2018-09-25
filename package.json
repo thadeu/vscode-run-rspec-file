@@ -2,7 +2,7 @@
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
     "description": "Run RSpec File",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "publisher": "thadeu",
     "icon": "rspec.png",
     "galleryBanner": {
@@ -13,10 +13,10 @@
         "vscode": "^1.25.0"
     },
     "categories": [
-         "Programming Languages",
-         "Snippets",
-         "Extension Packs",
-         "Other"
+        "Programming Languages",
+        "Snippets",
+        "Extension Packs",
+        "Other"
     ],
     "activationEvents": [
         "onCommand:extension.runAllFilesOnRspec",
@@ -34,7 +34,9 @@
         "languages": [
             {
                 "id": "ruby",
-                "extensions": [".rb"]
+                "extensions": [
+                    ".rb"
+                ]
             }
         ],
         "commands": [
