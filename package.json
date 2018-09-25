@@ -1,0 +1,96 @@
+{
+    "name": "vscode-run-rspec-file",
+    "displayName": "vscode-run-rspec-file",
+    "description": "Run RSpec File",
+    "version": "0.0.1",
+    "publisher": "thadeu",
+    "icon": "rspec.png",
+    "galleryBanner": {
+        "color": "#232323",
+        "theme": "dark"
+    },
+    "engines": {
+        "vscode": "^1.25.0"
+    },
+    "categories": [
+         "Programming Languages",
+         "Snippets",
+         "Extension Packs",
+         "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.runAllFilesOnRspec",
+        "onCommand:extension.runFileOnRspec",
+        "onCommand:extension.runLineOnRspec",
+        "onCommand:extension.runOpenSpec"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/thadeu/vscode-run-rspec-file.git"
+    },
+    "homepage": "https://github.com/thadeu/vscode-run-rspec-file",
+    "main": "./out/src/extension",
+    "contributes": {
+        "languages": [
+            {
+                "id": "ruby",
+                "extensions": [".rb"]
+            }
+        ],
+        "commands": [
+            {
+                "command": "extension.runAllFilesOnRspec",
+                "title": "RSpec: Run All Files on RSpec"
+            },
+            {
+                "command": "extension.runFileOnRspec",
+                "title": "RSpec: Run File on RSpec"
+            },
+            {
+                "command": "extension.runLineOnRspec",
+                "title": "RSpec: Run Line on RSpec"
+            },
+            {
+                "command": "extension.runOpenSpec",
+                "title": "RSpec: Run Open spec this file"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "extension.runLineOnRspec",
+                "key": "cmd+l",
+                "when": "editorLangId == 'ruby'"
+            },
+            {
+                "command": "extension.runFileOnRspec",
+                "key": "cmd+alt+l",
+                "when": "editorLangId == 'ruby'"
+            },
+            {
+                "command": "extension.runOpenSpec",
+                "key": "cmd+alt+o",
+                "when": "editorLangId == 'ruby'"
+            }
+        ]
+    },
+    "keywords": [
+        "Ruby on Rails",
+        "Rspec",
+        "Spec",
+        "Ruby"
+    ],
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.21",
+        "tslint": "^5.8.0",
+        "@types/node": "^8.10.25",
+        "@types/mocha": "^2.2.42"
+    }
+}
