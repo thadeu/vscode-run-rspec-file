@@ -1,7 +1,7 @@
 {
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
-    "description": "Run RSpec File",
+    "description": "Provide simple command to Run RSpec File",
     "version": "0.1.0",
     "publisher": "Thadeu",
     "icon": "rspec.png",
