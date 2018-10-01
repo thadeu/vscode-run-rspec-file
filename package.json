@@ -22,7 +22,8 @@
         "onCommand:extension.runAllFilesOnRspec",
         "onCommand:extension.runFileOnRspec",
         "onCommand:extension.runLineOnRspec",
-        "onCommand:extension.runOpenSpec"
+        "onCommand:extension.runOpenSpec",
+        "onCommand:extension.runOnLastSpec"
     ],
     "repository": {
         "type": "git",
@@ -55,6 +56,10 @@
             {
                 "command": "extension.runOpenSpec",
                 "title": "RSpec: Run Open spec this file"
+            },
+            {
+                "command": "extension.runOnLastSpec",
+                "title": "RSpec: Run On Last Spec"
             }
         ],
         "keybindings": [
@@ -71,6 +76,11 @@
             {
                 "command": "extension.runOpenSpec",
                 "key": "cmd+alt+o",
+                "when": "editorLangId == 'ruby'"
+            },
+            {
+                "command": "extension.runOnLastSpec",
+                "key": "cmd+y",
                 "when": "editorLangId == 'ruby'"
             }
         ]

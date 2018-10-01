@@ -4,6 +4,11 @@ This extension provides basic commands for running spec files in build-in vscode
 
 ## Features
 
+* Run only current line with cmd+l (RSpec: Run Line on RSpec)
+* Search and Run Spec based current file with cmd+alt+l (RSpec: Run File on RSpec)
+* Search and open file _spec with cmd+alt+o (RSpec: Run Open spec this file)
+* Run on last spec with cmd+y (RSpec: Run On Last Spec)
+
 Available commands:
 
 ```json
@@ -21,6 +26,11 @@ Available commands:
     {
         "command": "extension.runOpenSpec",
         "key": "cmd+alt+o",
+        "when": "editorLangId == 'ruby'"
+    },
+    {
+        "command": "extension.runOnLastSpec",
+        "key": "cmd+y",
         "when": "editorLangId == 'ruby'"
     }
 ]

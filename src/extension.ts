@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 let terminals = {};
 let TERMINAL_NAME = 'RSpec Run File';
+let lastExecuted = '';
 
 function getAsRelativePath(filename: string) {
     return vscode.workspace.asRelativePath(filename, false);
@@ -43,29 +44,42 @@ function getActiveLine(){
     return vscode.window.activeTextEditor.selection.active.line+1;
 }
 
-function bundleRspecAll(lineNumber?: boolean){
+function execCommand(commandText: string){
     let terminal = getTerminal();
-    terminal.sendText(`bundle exec rspec --color`);
+    
+    terminal.sendText(commandText);
     terminal.show();
+
+    lastExecuted = commandText;
 }
 
-function bundleRspecFile(lineNumber?: boolean){
-    let terminal = getTerminal();
-    let specFilename = getSpecFilePath(getFilename());
+function bundleRspecAll(){
+    let commandText = `bundle exec rspec --color`
+    execCommand(commandText)
+}
 
-    terminal.sendText(`bundle exec rspec --color ${specFilename}`);
-    terminal.show();
+function bundleRspecFile(){
+    let specFilename = getSpecFilePath(getFilename());
+    let commandText = `bundle exec rspec --color ${specFilename}`
+    execCommand(commandText)
 }
 
 function bundleRspecLine(){
-    let terminal = getTerminal();
     let specFilename = getSpecFilePath(getFilename());
-    
-    terminal.sendText(`bundle exec rspec --color ${specFilename}:${getActiveLine()}`);
-    terminal.show();
+    let commandText = `bundle exec rspec --color ${specFilename}:${getActiveLine()}`
+    execCommand(commandText)
+}
+
+function bundleRspecLastExecuted(){
+    if (lastExecuted){
+        execCommand(lastExecuted)
+    }else {
+        vscode.window.showWarningMessage('RSpec : Not found last command executed');
+    }
 }
 
 function clearTerminal(){
+    vscode.window.activeTextEditor.document.save();
     return vscode.commands.executeCommand('workbench.action.terminal.clear')
 }
 
@@ -91,6 +105,10 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showWarningMessage('RSpec Line: only spec folder');
             }
         });
+    }));
+    
+    context.subscriptions.push(vscode.commands.registerCommand('extension.runOnLastSpec', () => {
+        clearTerminal().then(() => bundleRspecLastExecuted());
     }));
 }
 
