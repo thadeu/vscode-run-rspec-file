@@ -7,10 +7,19 @@ let TERMINAL_NAME = "RSpec Run File";
 let lastExecuted = "";
 
 function getAsRelativePath() {
-  const fileUri = getFilename();
-  const initialFolderIndexOf = fileUri.lastIndexOf("app/");
+  let relativePath = "";
 
-  return fileUri.substr(initialFolderIndexOf);
+  const fileUri = getFilename();
+  const indexOfAppFolder = fileUri.lastIndexOf("app/");
+  const indexOfSpecFolder = fileUri.lastIndexOf("spec/");
+
+  if (indexOfAppFolder > -1) {
+    relativePath = fileUri.substr(indexOfAppFolder);
+  } else if (indexOfSpecFolder > -1) {
+    relativePath = fileUri.substr(indexOfSpecFolder);
+  }
+
+  return relativePath;
 }
 
 function getFilePath() {
