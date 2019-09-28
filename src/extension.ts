@@ -6,24 +6,31 @@ let terminals = {};
 let TERMINAL_NAME = "RSpec Run File";
 let lastExecuted = "";
 
-function getAsRelativePath() {
-  let relativePath = "";
+function getAsRelativePath(): string {
+  const rootFile: string = getFilename().replace(vscode.workspace.rootPath, "");
+  const isApp: boolean = /^\/app\//.test(rootFile);
+  const isSpec: boolean = /^\/spec\//.test(rootFile);
+  const isLib: boolean = /^\/lib\//.test(rootFile);
 
-  const fileUri = getFilename();
-  const indexOfAppFolder = fileUri.lastIndexOf("app/");
-  const indexOfSpecFolder = fileUri.lastIndexOf("spec/");
-
-  if (indexOfAppFolder > -1) {
-    relativePath = fileUri.substr(indexOfAppFolder);
-  } else if (indexOfSpecFolder > -1) {
-    relativePath = fileUri.substr(indexOfSpecFolder);
+  if (isApp) {
+    const indexOfAppFolder: number = rootFile.indexOf("/app/");
+    return rootFile.substr(indexOfAppFolder + 1);
+  } else if (isSpec) {
+    const indexOfSpecFolder: number = rootFile.indexOf("/spec/");
+    return rootFile.substr(indexOfSpecFolder + 1);
+  } else if (isLib) {
+    const indexOfLibFolder: number = rootFile.indexOf("/lib/");
+    return rootFile.substr(indexOfLibFolder + 1);
   }
 
-  return relativePath;
+  return "";
 }
 
-function getFilePath() {
-  return getAsRelativePath().replace(/(app\/)|(.rb)|(_spec.rb)|(spec\/)/gi, "");
+function getFilePath(): string {
+  return getAsRelativePath().replace(
+    /^(app\/)|(.rb)|(_spec.rb)|(spec\/)/gi,
+    ""
+  );
 }
 
 function getSpecFilePath() {
@@ -92,6 +99,10 @@ function clearTerminal() {
   return vscode.commands.executeCommand("workbench.action.terminal.clear");
 }
 
+function bundleRspecFolder() {
+  vscode.window.showWarningMessage("RSpec: Run all files this folder");
+}
+
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.runOpenSpec", async () => {
@@ -99,6 +110,13 @@ export function activate(context: vscode.ExtensionContext) {
         `${vscode.workspace.rootPath}/${getSpecFilePath()}`
       );
       let success = await vscode.commands.executeCommand("vscode.open", uri);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.runAllFilesFolder", () => {
+      console.log("entrou aqui");
+      clearTerminal().then(() => bundleRspecFolder());
     })
   );
 
