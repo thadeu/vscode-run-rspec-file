@@ -2,7 +2,7 @@
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
     "description": "Provide simple command to Run RSpec File",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "publisher": "Thadeu",
     "icon": "rspec.png",
     "galleryBanner": {
@@ -32,13 +32,16 @@
     "homepage": "https://github.com/thadeu/vscode-run-rspec-file",
     "main": "./out/src/extension",
     "contributes": {
-        "languages": [{
-            "id": "ruby",
-            "extensions": [
-                ".rb"
-            ]
-        }],
-        "commands": [{
+        "languages": [
+            {
+                "id": "ruby",
+                "extensions": [
+                    ".rb"
+                ]
+            }
+        ],
+        "commands": [
+            {
                 "command": "extension.runAllFilesFolder",
                 "title": "RSpec: Run All Files this folder"
             },
@@ -64,12 +67,15 @@
             }
         ],
         "menus": {
-            "explorer/context": [{
-                "command": "extension.runAllFilesFolder",
-                "group": "1_modification"
-            }]
+            "explorer/context": [
+                {
+                    "command": "extension.runAllFilesFolder",
+                    "group": "1_modification"
+                }
+            ]
         },
-        "keybindings": [{
+        "keybindings": [
+            {
                 "command": "extension.runLineOnRspec",
                 "key": "cmd+l",
                 "when": "editorLangId == 'ruby'"
