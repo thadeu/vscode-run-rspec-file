@@ -32,15 +32,16 @@
     "homepage": "https://github.com/thadeu/vscode-run-rspec-file",
     "main": "./out/src/extension",
     "contributes": {
-        "languages": [
-            {
-                "id": "ruby",
-                "extensions": [
-                    ".rb"
-                ]
-            }
-        ],
-        "commands": [
+        "languages": [{
+            "id": "ruby",
+            "extensions": [
+                ".rb"
+            ]
+        }],
+        "commands": [{
+                "command": "extension.runAllFilesFolder",
+                "title": "RSpec: Run All Files this folder"
+            },
             {
                 "command": "extension.runAllFilesOnRspec",
                 "title": "RSpec: Run All Files on RSpec"
@@ -62,8 +63,13 @@
                 "title": "RSpec: Run On Last Spec"
             }
         ],
-        "keybindings": [
-            {
+        "menus": {
+            "explorer/context": [{
+                "command": "extension.runAllFilesFolder",
+                "group": "1_modification"
+            }]
+        },
+        "keybindings": [{
                 "command": "extension.runLineOnRspec",
                 "key": "cmd+l",
                 "when": "editorLangId == 'ruby'"
