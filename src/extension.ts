@@ -6,6 +6,8 @@ let terminals = {};
 let TERMINAL_NAME = "RSpec Run File";
 let lastExecuted = "";
 
+const SETTINGS_RSPEC_COMMAND_KEY = 'vscode-run-rspec-file.custom-command';
+
 function getAsRelativePath(): string {
   const rootFile: string = getFilename().replace(vscode.workspace.rootPath, "");
   const isApp: boolean = /^\/app\//.test(rootFile);
@@ -69,20 +71,19 @@ function execCommand(commandText: string) {
 }
 
 function bundleRspecAll() {
-  let commandText = `bundle exec rspec --color`;
-  execCommand(commandText);
+  execCommand(getRSpecCommand());
 }
 
 function bundleRspecFile() {
   let specFilename = getSpecFilePath();
-  let commandText = `bundle exec rspec --color ${specFilename}`;
+  let commandText = `${getRSpecCommand()} ${specFilename}`;
 
   execCommand(commandText);
 }
 
 function bundleRspecLine() {
   let specFilename = getSpecFilePath();
-  let commandText = `bundle exec rspec --color ${specFilename}:${getActiveLine()}`;
+  let commandText = `${getRSpecCommand()} ${specFilename}:${getActiveLine()}`;
   execCommand(commandText);
 }
 
@@ -92,6 +93,10 @@ function bundleRspecLastExecuted() {
   } else {
     vscode.window.showWarningMessage("RSpec : Not found last command executed");
   }
+}
+
+function getRSpecCommand(): string {
+  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_COMMAND_KEY);
 }
 
 function clearTerminal() {
