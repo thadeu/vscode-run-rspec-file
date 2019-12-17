@@ -54,6 +54,8 @@ With this configuration you can customize your rspec command as you please. Exam
 
 The default is `bundle exec rspec --color`.
 
+You can also customize it per project by adding the same configuration to your project's `.vscode/settings.json`.
+
 # Contributing
 
 Once you've made your great commits (include tests, please):
