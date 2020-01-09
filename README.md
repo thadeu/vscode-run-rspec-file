@@ -36,7 +36,25 @@ Available commands:
 ]
 ```
 
-We going to enjoy!!
+Enjoy!
+
+## Settings
+
+### Custom command
+
+You might want to prefix the rspec command with something like docker or foreman.
+
+With this configuration you can customize your rspec command as you please. Example when using foreman:
+
+```json
+{
+  "vscode-run-rspec-file.custom-command": "foreman run bundle exec rspec --color",
+}
+```
+
+The default is `bundle exec rspec --color`.
+
+You can also customize it per project by adding the same configuration to your project's `.vscode/settings.json`.
 
 # Contributing
 

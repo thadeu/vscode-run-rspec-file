@@ -95,7 +95,17 @@
                 "key": "cmd+y",
                 "when": "editorLangId == 'ruby'"
             }
-        ]
+        ],
+        "configuration": {
+          "title": "vscode-run-rspec-file",
+          "properties": {
+            "vscode-run-rspec-file.custom-command": {
+              "type": "string",
+              "default": "bundle exec rspec --color",
+              "description": "RSpec command to be used when running specs. Example: \"bundle exec rspec --color\""
+            }
+          }
+        }
     },
     "keywords": [
         "Ruby on Rails",
