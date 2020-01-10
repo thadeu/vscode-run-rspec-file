@@ -2,7 +2,7 @@
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
     "description": "Provide simple command to Run RSpec File",
-    "version": "0.5.7",
+    "version": "0.5.8",
     "publisher": "Thadeu",
     "icon": "rspec.png",
     "galleryBanner": {
@@ -97,14 +97,14 @@
             }
         ],
         "configuration": {
-          "title": "vscode-run-rspec-file",
-          "properties": {
-            "vscode-run-rspec-file.custom-command": {
-              "type": "string",
-              "default": "bundle exec rspec --color",
-              "description": "RSpec command to be used when running specs. Example: \"bundle exec rspec --color\""
+            "title": "vscode-run-rspec-file",
+            "properties": {
+                "vscode-run-rspec-file.custom-command": {
+                    "type": "string",
+                    "default": "bundle exec rspec --color",
+                    "description": "RSpec command to be used when running specs. Example: \"bundle exec rspec --color\""
+                }
             }
-          }
         }
     },
     "keywords": [
