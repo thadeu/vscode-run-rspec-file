@@ -1,5 +1,3 @@
-"use strict";
-
 import * as vscode from "vscode";
 
 let terminals = {};
@@ -148,7 +146,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.runAllFilesFolder", () => {
-      console.log("entrou aqui");
       clearTerminal().then(() => bundleRspecFolder());
     })
   );
