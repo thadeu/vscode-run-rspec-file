@@ -4,6 +4,10 @@ All notable changes to the "vscode-run-rspec-file" extension will be documented 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## v0.5.9
+
+- 🎉 added support to toggle file using cmd+alt+o [Thanks @kulas115 for issue](https://github.com/thadeu/vscode-run-rspec-file/issues/13)
+
 ## v0.5.7
 
 - fix when exists folder app within app root
