@@ -6,7 +6,7 @@ let terminals = {};
 let TERMINAL_NAME = "RSpec Run File";
 let lastExecuted = "";
 
-const SETTINGS_RSPEC_COMMAND_KEY = 'vscode-run-rspec-file.custom-command';
+const SETTINGS_RSPEC_COMMAND_KEY = "vscode-run-rspec-file.custom-command";
 
 function getAsRelativePath(): string {
   const rootFile: string = getFilename().replace(vscode.workspace.rootPath, "");
@@ -35,12 +35,37 @@ function getFilePath(): string {
   );
 }
 
+function getCurrentFilePath() {
+  let filepath = "";
+  let filename = getOriginalFile();
+
+  if (isSpecFolder()) {
+    if (isLibFolder()) {
+      filepath = filename;
+    } else {
+      filepath = `app/${filename}`;
+    }
+  } else {
+    filepath = getSpecFilePath();
+  }
+
+  return filepath;
+}
+
+function getOriginalFile(): string {
+  return getSpecFilePath().replace(/spec\/|(_spec)/g, "");
+}
+
 function getSpecFilePath() {
   return `spec/${getFilePath()}_spec.rb`;
 }
 
 function isSpecFolder() {
   return getFilename().indexOf("/spec/") !== -1;
+}
+
+function isLibFolder() {
+  return getFilename().indexOf("/lib/") !== -1;
 }
 
 function getTerminal() {
@@ -108,14 +133,17 @@ function bundleRspecFolder() {
   vscode.window.showWarningMessage("RSpec: Run all files this folder");
 }
 
+async function toggleFile() {
+  let uri = vscode.Uri.file(
+    `${vscode.workspace.rootPath}/${getCurrentFilePath()}`
+  );
+
+  await vscode.commands.executeCommand("vscode.open", uri);
+}
+
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.runOpenSpec", async () => {
-      let uri = vscode.Uri.file(
-        `${vscode.workspace.rootPath}/${getSpecFilePath()}`
-      );
-      let success = await vscode.commands.executeCommand("vscode.open", uri);
-    })
+    vscode.commands.registerCommand("extension.runOpenSpec", toggleFile)
   );
 
   context.subscriptions.push(
