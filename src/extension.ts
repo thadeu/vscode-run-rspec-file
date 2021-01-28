@@ -12,9 +12,8 @@ function getWorkspacePath(): string {
 }
 
 function getAsRelativePath(): string {
-  const filename = getFilename();
   const workspaceProjectPath: string = getWorkspacePath();
-  const rootFile: string = filename.replace(workspaceProjectPath, "");
+  const rootFile: string = getFilename().replace(workspaceProjectPath, "");
   const isApp: boolean = /^\/app\//.test(rootFile);
   const isSpec: boolean = /^\/spec\//.test(rootFile);
   const isLib: boolean = /^\/lib\//.test(rootFile);
