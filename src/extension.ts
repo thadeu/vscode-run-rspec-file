@@ -28,7 +28,7 @@ function getAsRelativePath(): string {
 
 function getFilePath(): string {
   return getAsRelativePath().replace(
-    /^(app\/)|(.rb)|(_spec.rb)|(spec\/)/gi,
+    /^(app\/)|(\.rb)|(_spec.rb)|(spec\/)/gi,
     ""
   );
 }
