@@ -6,8 +6,14 @@ let lastExecuted = "";
 
 const SETTINGS_RSPEC_COMMAND_KEY = "vscode-run-rspec-file.custom-command";
 
+function getWorkspacePath(): string {
+  const folderPaths: string[] = vscode.workspace.workspaceFolders.map(workspaceFolder => workspaceFolder.uri.path);
+  return folderPaths.find(path => getFilename().includes(path));
+}
+
 function getAsRelativePath(): string {
-  const rootFile: string = getFilename().replace(vscode.workspace.rootPath, "");
+  const workspaceProjectPath: string = getWorkspacePath();
+  const rootFile: string = getFilename().replace(workspaceProjectPath, "");
   const isApp: boolean = /^\/app\//.test(rootFile);
   const isSpec: boolean = /^\/spec\//.test(rootFile);
   const isLib: boolean = /^\/lib\//.test(rootFile);
