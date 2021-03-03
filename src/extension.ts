@@ -5,6 +5,7 @@ let TERMINAL_NAME = "RSpec Run File";
 let lastExecuted = "";
 
 const SETTINGS_RSPEC_COMMAND_KEY = "vscode-run-rspec-file.custom-command";
+const SETTINGS_RSPEC_COMMAND_PLACEHOLDER = "specsToRun";
 
 function getAsRelativePath(): string {
   const rootFile: string = getFilename().replace(vscode.workspace.rootPath, "");
@@ -94,19 +95,20 @@ function execCommand(commandText: string) {
 }
 
 function bundleRspecAll() {
-  execCommand(getRSpecCommand());
+  execCommand(getCommandText(``));
 }
 
 function bundleRspecFile() {
   let specFilename = getSpecFilePath();
-  let commandText = `${getRSpecCommand()} ${specFilename}`;
+  let commandText = getCommandText(specFilename);
 
   execCommand(commandText);
 }
 
 function bundleRspecLine() {
   let specFilename = getSpecFilePath();
-  let commandText = `${getRSpecCommand()} ${specFilename}:${getActiveLine()}`;
+  let commandText = getCommandText(`${specFilename}:${getActiveLine()}`);
+
   execCommand(commandText);
 }
 
@@ -118,8 +120,14 @@ function bundleRspecLastExecuted() {
   }
 }
 
-function getRSpecCommand(): string {
-  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_COMMAND_KEY);
+function getCommandText(specString): string {
+  let rawCommand = vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_COMMAND_KEY);
+  let rawCommandRegExp = new RegExp(SETTINGS_RSPEC_COMMAND_PLACEHOLDER, 'g');
+  if (rawCommand.match(rawCommandRegExp)) {
+    return rawCommand.replace(rawCommandRegExp, specString);
+  } else {
+    return `${rawCommand} ${specString}`;
+  }
 }
 
 function clearTerminal() {
