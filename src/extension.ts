@@ -128,7 +128,7 @@ function clearTerminal() {
 }
 
 function bundleRspecFolder() {
-  vscode.window.showWarningMessage("RSpec: Run all files this folder");
+  vscode.window.showWarningMessage("RSpec: Run all files this folder!");
 }
 
 async function toggleFile() {
