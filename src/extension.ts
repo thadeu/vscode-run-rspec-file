@@ -5,6 +5,8 @@ let TERMINAL_NAME = "RSpec Run File";
 let lastExecuted = "";
 
 const SETTINGS_RSPEC_COMMAND_KEY = "vscode-run-rspec-file.custom-command";
+const SETTINGS_RSPEC_FOLDER = "vscode-run-rspec-file.folder";
+const SETTINGS_SUFFIX_FILE = "vscode-run-rspec-file.suffix";
 
 function getWorkspacePath(): string {
   const folderPaths: string[] = vscode.workspace.workspaceFolders.map(workspaceFolder => workspaceFolder.uri.path);
@@ -33,10 +35,10 @@ function getAsRelativePath(): string {
 }
 
 function getFilePath(): string {
-  return getAsRelativePath().replace(
-    /^(app\/)|(\.rb)|(_spec.rb)|(spec\/)/gi,
-    ""
-  );
+  let regex = /^(app\/)|(\.rb)|(_spec.rb)|(spec\/)/gi
+  let value = getAsRelativePath().replace(regex, "");
+
+  return value
 }
 
 function getCurrentFilePath() {
@@ -57,11 +59,11 @@ function getCurrentFilePath() {
 }
 
 function getOriginalFile(): string {
-  return getSpecFilePath().replace(/spec\/|(_spec)/g, "");
+  return getSpecFilePath().replace(/spec\//g, "").replace(/(_spec|_test)?.rb$/, ".rb")
 }
 
 function getSpecFilePath() {
-  return `spec/${getFilePath()}_spec.rb`;
+  return `${getRSpecFolder()}/${getFilePath()}_${getSuffixFile()}.rb`;
 }
 
 function isSpecFolder() {
@@ -128,6 +130,14 @@ function getRSpecCommand(): string {
   return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_COMMAND_KEY);
 }
 
+function getRSpecFolder(): string {
+  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_FOLDER) || 'spec';
+}
+
+function getSuffixFile(): string {
+  return vscode.workspace.getConfiguration().get(SETTINGS_SUFFIX_FILE) || 'spec';
+}
+
 function clearTerminal() {
   vscode.window.activeTextEditor.document.save();
   return vscode.commands.executeCommand("workbench.action.terminal.clear");
@@ -142,7 +152,7 @@ async function toggleFile() {
     `${vscode.workspace.rootPath}/${getCurrentFilePath()}`
   );
 
-  await vscode.commands.executeCommand("vscode.open", uri);
+  return vscode.commands.executeCommand("vscode.open", uri);
 }
 
 export function activate(context: vscode.ExtensionContext) {
