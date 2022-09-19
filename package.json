@@ -103,6 +103,16 @@
                     "type": "string",
                     "default": "bundle exec rspec --color",
                     "description": "RSpec command to be used when running specs. Example: \"bundle exec rspec --color\""
+                },
+                "vscode-run-rspec-file.folder": {
+                    "type": "string",
+                    "default": "spec",
+                    "description": "Set an custom folder to run tests Example: \"test\""
+                },
+                "vscode-run-rspec-file.suffix": {
+                    "type": "string",
+                    "default": "spec",
+                    "description": "Set an custom suffix files tests Example: \"test\""
                 }
             }
         }

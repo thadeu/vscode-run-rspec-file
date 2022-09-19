@@ -6,7 +6,7 @@ This extension provides basic commands for running spec files in build-in vscode
 
 * Run only current line with cmd+l (RSpec: Run Line on RSpec)
 * Search and Run Spec based current file with cmd+alt+l (RSpec: Run File on RSpec)
-* Search and open file _spec with cmd+alt+o (RSpec: Run Open spec this file)
+* Search and open file with cmd+alt+o (RSpec: Run Open spec this file)
 * 🎉 Toggle file between spec and source file with cmd+alt+o (RSpec: Run Open spec this file)
 * Run on last spec with cmd+y (RSpec: Run On Last Spec)
 
@@ -49,7 +49,27 @@ With this configuration you can customize your rspec command as you please. Exam
 
 ```json
 {
-  "vscode-run-rspec-file.custom-command": "foreman run bundle exec rspec --color",
+  "vscode-run-rspec-file.custom-command": "foreman run bundle exec rspec --color"
+}
+```
+
+### Custom folder
+
+You want to work in other folder. With this configuration you can customize rspec command to run a custom folder.
+
+```json
+{
+  "vscode-run-rspec-file.folder": "test"
+}
+```
+
+### Custom Suffix File
+
+You want to work with other suffix file, for exemplo, if you use Minitest, you set `_test.rb` suffix. So, with this configuration you might customize suffix file. 
+
+```json
+{
+    "vscode-run-rspec-file.suffix": "test"
 }
 ```
 
