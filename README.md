@@ -2,6 +2,28 @@
 
 This extension provides basic commands for running spec files in build-in vscode terminal.
 
+## Table of Contents <!-- omit in toc -->
+  - [Motivation](#motivation)
+  - [Features](#features)
+  - [Documentation](#documentation)
+  - [Available Commands](#available-commands)
+  - [Settings](#settings)
+    - [Custom command](#custom-command)
+    - [Custom folder](#custom-folder)
+    - [Custom Suffix File](#custom-suffix-file)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+## Motivation
+
+Facility run RSpec in the VSCode Terminal
+
+## Documentation <!-- omit in toc -->
+
+Version    | Documentation
+---------- | -------------
+unreleased | https://github.com/thadeu/vscode-run-rspec-file/blob/main/README.md
+
 ## Features
 
 * Run only current line with cmd+l (RSpec: Run Line on RSpec)
@@ -9,14 +31,20 @@ This extension provides basic commands for running spec files in build-in vscode
 * Search and open file with cmd+alt+o (RSpec: Run Open spec this file)
 * 🎉 Toggle file between spec and source file with cmd+alt+o (RSpec: Run Open spec this file)
 * Run on last spec with cmd+y (RSpec: Run On Last Spec)
+* Run All Opened Files with `cmd+alt+j` (RSpec: Run All Opened Files) [Issue #20](https://github.com/thadeu/vscode-run-rspec-file/issues/20)
 
-Available commands:
+## Available Commands
 
 ```json
 [
     {
         "command": "extension.runLineOnRspec",
         "key": "cmd+l",
+        "when": "editorLangId == 'ruby'"
+    },
+    {
+        "command": "extension.runAllOpenedFiles",
+        "key": "cmd+alt+j",
         "when": "editorLangId == 'ruby'"
     },
     {
@@ -36,6 +64,15 @@ Available commands:
     }
 ]
 ```
+
+| Description                           | Command       |
+|-------------                          | -------       |
+| Run Active Line in the Active File    | `cmd+l`       |
+| Run Opened Files in the Workspace     | `cmd+alt+j`   |
+| Run Single Active File                | `cmd+alt+l`   |
+| Toggle file                           | `cmd+alt+o`   |
+| Run Last Command                      | `cmd+y`       |
+|                                       |               |
 
 Enjoy!
 

@@ -8,8 +8,16 @@
             "dom"
         ],
         "sourceMap": true,
-        "rootDir": "."
+        "rootDir": ".",
+        "declaration": true,
+        "removeComments": true,
+        "strict": false,
+        "noUnusedLocals": true,
+        "esModuleInterop": true,
+        // "skipLibCheck": false,
+        // "forceConsistentCasingInFileNames": true
     },
+    "include": ["./src/**/*", "spec/**/*"],
     "exclude": [
         "node_modules",
         ".vscode-test"
