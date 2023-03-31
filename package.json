@@ -19,12 +19,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.runAllFilesOnRspec",
-        "onCommand.extension.runAllOpenedFiles",
-        "onCommand:extension.runFileOnRspec",
-        "onCommand:extension.runLineOnRspec",
-        "onCommand:extension.runOpenSpec",
-        "onCommand:extension.runOnLastSpec"
+      "onCommand.extension.runAllOpenedFiles"
     ],
     "repository": {
         "type": "git",
