@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 
-import { execCommand } from '../extension'
+import { execCommand } from './terminal'
 
 export function bundleRspecLastExecuted(lastExecuted) {
   if (lastExecuted) {

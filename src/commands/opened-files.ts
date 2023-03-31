@@ -2,8 +2,7 @@ import * as vscode from 'vscode'
 import compact from 'lodash.compact'
 import uniq from 'lodash.uniq'
 
-import { execCommand } from '../extension'
-import { getRSpecCommand } from './terminal'
+import { execCommand, getRSpecCommand } from './terminal'
 import { getSpecFilePath, getWorkspacePath } from '../path'
 
 function notifyWindow(size: number) {

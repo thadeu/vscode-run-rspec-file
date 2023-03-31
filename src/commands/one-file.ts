@@ -1,6 +1,5 @@
-import { execCommand } from '../extension'
 import { getSpecFilePath } from '../path'
-import { getRSpecCommand } from './terminal'
+import { execCommand, getRSpecCommand } from './terminal'
 
 export function bundleRspecFile() {
   let specFilename = getSpecFilePath()

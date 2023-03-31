@@ -1,5 +1,4 @@
-import { execCommand } from '../extension'
-import { getRSpecCommand } from './terminal'
+import { execCommand, getRSpecCommand } from './terminal'
 
 export function bundleRspecAll() {
   return execCommand(getRSpecCommand())
