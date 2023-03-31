@@ -2,7 +2,7 @@
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
     "description": "Provide simple command to Run RSpec File",
-    "version": "0.5.11",
+    "version": "0.5.2",
     "publisher": "Thadeu",
     "icon": "rspec.png",
     "galleryBanner": {
@@ -17,13 +17,6 @@
         "Snippets",
         "Extension Packs",
         "Other"
-    ],
-    "activationEvents": [
-        "onCommand:extension.runAllFilesOnRspec",
-        "onCommand:extension.runFileOnRspec",
-        "onCommand:extension.runLineOnRspec",
-        "onCommand:extension.runOpenSpec",
-        "onCommand:extension.runOnLastSpec"
     ],
     "repository": {
         "type": "git",
@@ -42,12 +35,12 @@
         ],
         "commands": [
             {
-                "command": "extension.runAllFilesFolder",
-                "title": "RSpec: Run All Files this folder"
-            },
-            {
                 "command": "extension.runAllFilesOnRspec",
                 "title": "RSpec: Run All Files on RSpec"
+            },
+            {
+                "command": "extension.runAllOpenedFiles",
+                "title": "RSpec: Run All Opened Files"
             },
             {
                 "command": "extension.runFileOnRspec",
@@ -66,18 +59,15 @@
                 "title": "RSpec: Run On Last Spec"
             }
         ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "extension.runAllFilesFolder",
-                    "group": "1_modification"
-                }
-            ]
-        },
         "keybindings": [
             {
                 "command": "extension.runLineOnRspec",
                 "key": "cmd+l",
+                "when": "editorLangId == 'ruby'"
+            },
+            {
+                "command": "extension.runAllOpenedFiles",
+                "key": "cmd+alt+j",
                 "when": "editorLangId == 'ruby'"
             },
             {
@@ -120,8 +110,11 @@
     "keywords": [
         "Ruby on Rails",
         "Rspec",
+        "RSpec",
         "Spec",
-        "Ruby"
+        "Ruby",
+        "TDD",
+        "Testing"
     ],
     "scripts": {
         "vscode:prepublish": "npm run compile",
@@ -131,7 +124,11 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
+        "@types/lodash.compact": "^3.0.7",
+        "@types/lodash.uniq": "^4.5.7",
         "@types/mocha": "^2.2.42",
+        "lodash.compact": "^3.0.1",
+        "lodash.uniq": "^4.5.0",
         "tslint": "^5.20.1",
         "typescript": "^2.6.1",
         "vscode": "^1.1.37"
