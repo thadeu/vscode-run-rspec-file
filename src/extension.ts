@@ -13,11 +13,11 @@ let terminals = {}
 let lastExecuted = ''
 
 export function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(RegisterToggleFile())
-  context.subscriptions.push(RegisterRunOnlyOpenedFiles())
-  context.subscriptions.push(RegisterRunAllSpecs())
-  context.subscriptions.push(RegisterRunOnlyFileSpec())
-  context.subscriptions.push(RegisterRunLineFileSpec())
+  context.subscriptions.push(vscode.commands.registerCommand('extension.runAllFilesOnRspec', RegisterRunAllSpecs))
+  context.subscriptions.push(vscode.commands.registerCommand('extension.runFileOnRspec', RegisterRunOnlyFileSpec))
+  context.subscriptions.push(vscode.commands.registerCommand('extension.runOpenSpec', RegisterToggleFile))
+  context.subscriptions.push(vscode.commands.registerCommand('extension.runLineOnRspec', RegisterRunLineFileSpec))
+  context.subscriptions.push(vscode.commands.registerCommand('extension.runAllOpenedFiles', RegisterRunOnlyOpenedFiles))
 
   // Because lastExecuted variable will be pass to command
   context.subscriptions.push(
@@ -26,6 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
     }),
   )
 }
+
+export function deactivate() {}
 
 export function execCommand(commandText: string) {
   let terminal = getTerminal(terminals)
@@ -37,8 +39,6 @@ export function execCommand(commandText: string) {
 
   return lastExecuted
 }
-
-export function deactivate() {}
 
 vscode.window.onDidCloseTerminal((terminal: vscode.Terminal) => {
   if (terminals[terminal.name]) {
