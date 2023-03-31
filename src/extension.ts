@@ -1,6 +1,4 @@
 import * as vscode from 'vscode'
-import compact from 'lodash.compact'
-import uniq from 'lodash.uniq'
 
 let terminals = {}
 let TERMINAL_NAME = 'RSpec Run File'
@@ -38,7 +36,7 @@ function getAsRelativePath(): string {
 
 function getFilePath(path?: string): string {
   let regex = /^(app\/)|(\.rb)|(_spec.rb)|(spec\/)/gi
-  let value = getAsRelativePath().replace(regex, '')
+  let value = (path || getAsRelativePath()).replace(regex, '')
 
   return value
 }
@@ -67,7 +65,7 @@ function getOriginalFile(): string {
 }
 
 function getSpecFilePath(path?: string) {
-  return `${getRSpecFolder()}/${getFilePath()}_${getSuffixFile()}.rb`
+  return `${getRSpecFolder()}/${getFilePath(path)}_${getSuffixFile()}.rb`
 }
 
 function isSpecFolder() {
@@ -134,6 +132,8 @@ function bundleRspecOpenedFiles() {
   let documents = vscode.workspace.textDocuments
   const workspacePath: string = getWorkspacePath()
 
+  let cache = {}
+
   let filePathsUri = documents.map((o) => {
     if (o.uri.path.endsWith('.rb')) {
       let file: string = o.uri.path.replace(workspacePath, '')
@@ -142,11 +142,14 @@ function bundleRspecOpenedFiles() {
         file = file.substring(1)
       }
 
-      return getSpecFilePath(file)
+      let uri = getSpecFilePath(file)
+      cache[uri] = uri
+
+      return uri
     }
   })
 
-  filePathsUri = uniq(compact(filePathsUri))
+  filePathsUri = Object.keys(cache).filter((o) => !!o)
 
   if (filePathsUri.length <= 0) {
     return vscode.window.showInformationMessage('Not found opened spec files')
