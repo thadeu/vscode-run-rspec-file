@@ -2,7 +2,7 @@
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
     "description": "Provide simple command to Run RSpec File",
-    "version": "0.5.20",
+    "version": "0.5.21",
     "publisher": "Thadeu",
     "icon": "rspec.png",
     "galleryBanner": {
@@ -19,7 +19,7 @@
         "Other"
     ],
     "activationEvents": [
-      "onCommand.extension.runAllOpenedFiles"
+        "onCommand.extension.runAllOpenedFiles"
     ],
     "repository": {
         "type": "git",
