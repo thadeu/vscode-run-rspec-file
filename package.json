@@ -18,6 +18,14 @@
         "Extension Packs",
         "Other"
     ],
+    "activationEvents": [
+      "onCommand:extension.runAllFilesOnRspec",
+      "onCommand.extension.runAllOpenedFiles",
+      "onCommand:extension.runFileOnRspec",
+      "onCommand:extension.runLineOnRspec",
+      "onCommand:extension.runOpenSpec",
+      "onCommand:extension.runOnLastSpec"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/thadeu/vscode-run-rspec-file.git"
