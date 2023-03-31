@@ -19,7 +19,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand.extension.runAllOpenedFiles"
+      "onLanguage:ruby"
     ],
     "repository": {
         "type": "git",
