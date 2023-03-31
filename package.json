@@ -19,12 +19,12 @@
         "Other"
     ],
     "activationEvents": [
-      "onCommand:extension.runAllFilesOnRspec",
-      "onCommand.extension.runAllOpenedFiles",
-      "onCommand:extension.runFileOnRspec",
-      "onCommand:extension.runLineOnRspec",
-      "onCommand:extension.runOpenSpec",
-      "onCommand:extension.runOnLastSpec"
+        "onCommand:extension.runAllFilesOnRspec",
+        "onCommand.extension.runAllOpenedFiles",
+        "onCommand:extension.runFileOnRspec",
+        "onCommand:extension.runLineOnRspec",
+        "onCommand:extension.runOpenSpec",
+        "onCommand:extension.runOnLastSpec"
     ],
     "repository": {
         "type": "git",
@@ -132,8 +132,6 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/lodash.compact": "^3.0.7",
-        "@types/lodash.uniq": "^4.5.7",
         "@types/mocha": "^2.2.42",
         "lodash.compact": "^3.0.1",
         "lodash.uniq": "^4.5.0",
