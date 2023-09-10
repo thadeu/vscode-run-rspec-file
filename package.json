@@ -99,7 +99,7 @@
             "properties": {
                 "vscode-run-rspec-file.controller-spec-directory": {
                     "type": "string",
-                    "default": "requests",
+                    "default": "controllers",
                     "description": "The directory to place controller specs in."
                 },
                 "vscode-run-rspec-file.custom-command": {

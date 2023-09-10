@@ -120,7 +120,7 @@ You should now write specs for your controllers as request specs ([source](http:
 
 ```json
 {
-  "vscode-run-rspec-file.controller-spec-directory": "controllers"
+  "vscode-run-rspec-file.controller-spec-directory": "requests"
 }
 ```
 
