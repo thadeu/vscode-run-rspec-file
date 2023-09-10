@@ -34,11 +34,22 @@ function getAsRelativePath(): string {
   return ''
 }
 
+function getControllerSpecDirectory(): string {
+  return vscode.workspace.getConfiguration().get("vscode-run-rspec-file.controller-spec-directory");
+}
+
 function getFilePath(path?: string): string {
   let regex = /^(app\/)|(\.rb)|(_spec.rb)|(spec\/)/gi
   let value = (path || getAsRelativePath()).replace(regex, '')
 
-  return value
+  // Check if the input file is in the "controllers" directory.
+  if (value.startsWith("controllers/")) {
+    // Replace "controllers" with the configured directory for controller specs.
+    const controllerSpecDirectory = getControllerSpecDirectory();
+    value = value.replace("controllers", controllerSpecDirectory);
+  }
+
+  return value;
 }
 
 function getCurrentFilePath() {

@@ -97,6 +97,11 @@
         "configuration": {
             "title": "vscode-run-rspec-file",
             "properties": {
+                "vscode-run-rspec-file.controller-spec-directory": {
+                    "type": "string",
+                    "default": "requests",
+                    "description": "The directory to place controller specs in."
+                },
                 "vscode-run-rspec-file.custom-command": {
                     "type": "string",
                     "default": "bundle exec rspec --color",
