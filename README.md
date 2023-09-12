@@ -114,6 +114,16 @@ The default is `bundle exec rspec --color`.
 
 You can also customize it per project by adding the same configuration to your project's `.vscode/settings.json`.
 
+### Custom folder for controller specs
+
+You should now write specs for your controllers as request specs ([source](http://rspec.info/blog/2016/07/rspec-3-5-has-been-released/)). The default thus is to create controller specs at `spec/requests`, but this can be changed via:
+
+```json
+{
+  "vscode-run-rspec-file.controller-spec-directory": "requests"
+}
+```
+
 # Contributing
 
 Once you've made your great commits (include tests, please):
