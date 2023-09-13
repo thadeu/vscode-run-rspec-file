@@ -1,19 +1,19 @@
 import * as vscode from 'vscode'
 import { readFile } from 'fs/promises'
 import get from 'lodash.get'
-import isEmpty from 'lodash.isempty'
 
 let terminals = {}
-let TERMINAL_NAME = 'RSpec Run'
+let settingsCache = {}
+let globalsCache = {}
 let lastExecuted = ''
 
 const EXTENSION_NAME = 'vscode-run-rspec-file'
-const SETTINGS_RSPEC_COMMAND_KEY = 'vscode-run-rspec-file.custom-command'
-const SETTINGS_RSPEC_FOLDER = 'vscode-run-rspec-file.folder'
-const SETTINGS_RSPEC_CONTROLLER_FOLDER = 'vscode-run-rspec-file.controller-spec-directory'
-const SETTINGS_SUFFIX_FILE = 'vscode-run-rspec-file.suffix'
+const SETTINGS_RSPEC_COMMAND_KEY = `${EXTENSION_NAME}.custom-command`
+const SETTINGS_RSPEC_FOLDER = `${EXTENSION_NAME}.folder`
+const SETTINGS_RSPEC_CONTROLLER_FOLDER = `${EXTENSION_NAME}.controller-spec-directory`
+const SETTINGS_SUFFIX_FILE = `${EXTENSION_NAME}.suffix`
 
-let isMultipleWorkSpaces = vscode.workspace.workspaceFolders.length > 1
+let isMultipleWorkSpaces = () => vscode.workspace.workspaceFolders.length > 1
 
 type SettingsType = {
   customCommand?: any
@@ -29,8 +29,20 @@ const settingDefaultObject: SettingsType = {
   controllerFolder: 'controllers',
 }
 
+function getByKeyOrAll(object, key) {
+  if (key) {
+    return object[key]
+  }
+
+  return object
+}
+
 async function globalSettings(): Promise<SettingsType> {
   try {
+    if (globalsCache[getWorkspace().name]) {
+      return globalsCache[getWorkspace().name]
+    }
+
     let config = vscode.workspace.getConfiguration()
 
     let customCommand = config.inspect('custom-command').defaultValue || config.inspect(SETTINGS_RSPEC_COMMAND_KEY).defaultValue
@@ -41,13 +53,17 @@ async function globalSettings(): Promise<SettingsType> {
 
     let suffix = config.inspect('suffix').defaultValue || config.inspect(SETTINGS_SUFFIX_FILE).defaultValue
 
-    return {
+    let mapping = {
       ...settingDefaultObject,
       customCommand,
       folder,
       suffix,
       controllerFolder,
     }
+
+    globalsCache[getWorkspace().name] = mapping
+
+    return mapping
   } catch (error) {
     console.error(error)
 
@@ -75,15 +91,11 @@ async function localSettings(): Promise<SettingsType> {
 }
 
 async function factorySettings(key?: keyof SettingsType) {
-  const globals = await globalSettings()
-
-  function getByKeyOrAll(object, key) {
-    if (key) {
-      return object[key]
-    }
-
-    return object
+  if (settingsCache[getWorkspace().name]) {
+    return getByKeyOrAll(settingsCache[getWorkspace().name], key)
   }
+
+  const globals = await globalSettings()
 
   try {
     const local = await localSettings()
@@ -95,6 +107,8 @@ async function factorySettings(key?: keyof SettingsType) {
       suffix: get(local, SETTINGS_SUFFIX_FILE) || globals['suffix'],
     }
 
+    settingsCache[getWorkspace().name] = mapping
+
     return getByKeyOrAll(mapping, key)
   } catch (error) {
     console.error(error)
@@ -103,7 +117,7 @@ async function factorySettings(key?: keyof SettingsType) {
   }
 }
 
-function getWorkspace(): vscode.WorkspaceFolder {
+function getWorkspace(key?: string): vscode.WorkspaceFolder {
   let workspace = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri)
 
   return workspace
@@ -138,20 +152,19 @@ async function getAsRelativePath() {
   return ''
 }
 
-function getControllerSpecDirectory(): string {
-  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_CONTROLLER_FOLDER)
+async function getControllerSpecDirectory() {
+  let config = await factorySettings('controllerFolder')
+  return config
 }
 
 async function getFilePath(path?: string) {
-  let folder = await getRSpecFolder()
-  let suffix = await getSuffixFile()
-  let relativePath = await getAsRelativePath()
+  let [folder, suffix, relativePath] = await Promise.all([getRSpecFolder(), getSuffixFile(), getAsRelativePath()])
 
   let regex = new RegExp(`^(app\/)|(\.rb)|(_${suffix}.rb)|(${folder}\/)`, 'g')
   let value = (path || relativePath).replace(regex, '')
 
   if (value.startsWith('controllers/')) {
-    const controllerSpecDirectory = getControllerSpecDirectory()
+    const controllerSpecDirectory = await getControllerSpecDirectory()
     value = value.replace('controllers', controllerSpecDirectory)
   }
 
@@ -160,7 +173,9 @@ async function getFilePath(path?: string) {
 
 async function getCurrentFilePath() {
   let filepath = ''
-  let filename = (await getOriginalFile()).replace(new RegExp(`^${getRSpecFolder()}/`), '')
+
+  let file = await getOriginalFile()
+  let filename = file.replace(new RegExp(`^${getRSpecFolder()}/`), '')
 
   if (await isSpecFolder()) {
     if (isLibFolder()) {
@@ -180,10 +195,9 @@ async function getOriginalFile() {
 }
 
 async function getSpecFilePath(path?: string) {
-  let filepath = await getFilePath(path)
+  let [filepath, suffix, folder] = await Promise.all([getFilePath(path), getSuffixFile(), getRSpecFolder()])
+
   let file = [filepath]
-  let suffix = await getSuffixFile()
-  let folder = await getRSpecFolder()
 
   if (suffix) {
     file = [file, '_', suffix]
@@ -210,9 +224,9 @@ function isLibFolder() {
 
 function getTerminal(): vscode.Terminal {
   let workspaceName = getWorkspace().name
-  let name = [workspaceName, TERMINAL_NAME].join(' - ')
+  let name = [workspaceName, 'RSpec Run'].join(' - ')
 
-  if (!isMultipleWorkSpaces) {
+  if (!isMultipleWorkSpaces()) {
     let opened = vscode.window.terminals.find((o) => o.name == name)
 
     if (opened) {
@@ -339,15 +353,25 @@ async function toggleFile() {
   const filepath = await getCurrentFilePath()
   const workspaceName = getWorkspace().name
 
-  const folders = vscode.workspace.workspaceFolders.map((o) => o.uri.fsPath)
+  function getRootPath() {
+    if (isMultipleWorkSpaces()) {
+      const folders = vscode.workspace.workspaceFolders.map((o) => o.uri.fsPath)
+      const target = folders.find((o) => o.includes(workspaceName))
 
-  const workspaceFsPath = folders.find((o) => o.includes(workspaceName))
-  const uri = vscode.Uri.file(`${workspaceFsPath}/${filepath}`)
+      return target
+    } else {
+      return vscode.workspace.rootPath
+    }
+  }
 
+  let uri = vscode.Uri.file(`${getRootPath()}/${filepath}`)
   return vscode.commands.executeCommand('vscode.open', uri)
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+  let settings = await globalSettings()
+  context.globalState.update('globalSettings', settings)
+
   context.subscriptions.push(vscode.commands.registerCommand('extension.runOpenSpec', toggleFile))
 
   context.subscriptions.push(
