@@ -150,9 +150,7 @@ async function getFilePath(path?: string) {
   let regex = new RegExp(`^(app\/)|(\.rb)|(_${suffix}.rb)|(${folder}\/)`, 'g')
   let value = (path || relativePath).replace(regex, '')
 
-  // Check if the input file is in the "controllers" directory.
   if (value.startsWith('controllers/')) {
-    // Replace "controllers" with the configured directory for controller specs.
     const controllerSpecDirectory = getControllerSpecDirectory()
     value = value.replace('controllers', controllerSpecDirectory)
   }
