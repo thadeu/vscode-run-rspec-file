@@ -2,6 +2,13 @@ import * as vscode from 'vscode'
 import { readFile } from 'fs/promises'
 import get from 'lodash.get'
 
+type SettingsType = {
+  customCommand?: any
+  folder?: any
+  suffix?: any
+  controllerFolder?: any
+}
+
 let terminals = {}
 let settingsCache = {}
 let globalsCache = {}
@@ -14,14 +21,6 @@ const SETTINGS_RSPEC_CONTROLLER_FOLDER = `${EXTENSION_NAME}.controller-spec-dire
 const SETTINGS_SUFFIX_FILE = `${EXTENSION_NAME}.suffix`
 
 let isMultipleWorkSpaces = () => vscode.workspace.workspaceFolders.length > 1
-
-type SettingsType = {
-  customCommand?: any
-  folder?: any
-  suffix?: any
-  controllerFolder?: any
-}
-
 const settingDefaultObject: SettingsType = {
   customCommand: 'bundle exec rspec',
   folder: 'spec',
