@@ -18,14 +18,14 @@ function getAsRelativePath(): string {
   const workspaceProjectPath: string = getWorkspacePath()
   const rootFile: string = getFilename().replace(workspaceProjectPath, '')
   const isApp: boolean = /^\/app\//.test(rootFile)
-  const isSpec: boolean = /^\/spec\//.test(rootFile)
+  const isSpec: boolean = new RegExp(`^\/?${getRSpecFolder}\/`).test(rootFile)
   const isLib: boolean = /^\/lib\//.test(rootFile)
 
   if (isApp) {
     const indexOfAppFolder: number = rootFile.indexOf('/app/')
     return rootFile.substr(indexOfAppFolder + 1)
   } else if (isSpec) {
-    const indexOfSpecFolder: number = rootFile.indexOf('/spec/')
+    const indexOfSpecFolder: number = rootFile.indexOf(`/${getRSpecFolder()}/`)
     return rootFile.substr(indexOfSpecFolder + 1)
   } else if (isLib) {
     const indexOfLibFolder: number = rootFile.indexOf('/lib/')
@@ -40,7 +40,10 @@ function getControllerSpecDirectory(): string {
 }
 
 function getFilePath(path?: string): string {
-  let regex = /^(app\/)|(\.rb)|(_spec.rb)|(spec\/)/gi
+  let folder = getRSpecFolder()
+  let suffix = getSuffixFile()
+
+  let regex = new RegExp(`^(app\/)|(\.rb)|(_${suffix}.rb)|(${folder}\/)`, 'g')
   let value = (path || getAsRelativePath()).replace(regex, '')
 
   // Check if the input file is in the "controllers" directory.
@@ -55,7 +58,7 @@ function getFilePath(path?: string): string {
 
 function getCurrentFilePath() {
   let filepath = ''
-  let filename = getOriginalFile()
+  let filename = getOriginalFile().replace(new RegExp(`^${getRSpecFolder()}/`), '')
 
   if (isSpecFolder()) {
     if (isLibFolder()) {
@@ -77,15 +80,27 @@ function getOriginalFile(): string {
 }
 
 function getSpecFilePath(path?: string) {
-  return `${getRSpecFolder()}/${getFilePath(path)}_${getSuffixFile()}.rb`
+  let file = [getFilePath(path)]
+
+  if (getSuffixFile()) {
+    file = [...file, '_', getSuffixFile()]
+  }
+
+  file.push('.rb')
+
+  let parts = [getRSpecFolder(), file.join('')]
+
+  return parts.join('/')
 }
 
 function isSpecFolder() {
-  return getFilename().indexOf('/spec/') !== -1
+  let regex = new RegExp(`\/${getRSpecFolder()}\/`)
+  return regex.test(getFilename())
 }
 
 function isLibFolder() {
-  return getFilename().indexOf('/lib/') !== -1
+  let regex = /\/lib\//
+  return regex.test(getFilename())
 }
 
 function getTerminal() {
@@ -123,13 +138,14 @@ function bundleRspecFile() {
   let specFilename = getSpecFilePath()
   let commandText = `${getRSpecCommand()} ${specFilename}`
 
-  execCommand(commandText)
+  return execCommand(commandText)
 }
 
 function bundleRspecLine() {
   let specFilename = getSpecFilePath()
   let commandText = `${getRSpecCommand()} ${specFilename}:${getActiveLine()}`
-  execCommand(commandText)
+
+  return execCommand(commandText)
 }
 
 function bundleRspecLastExecuted() {
@@ -182,7 +198,7 @@ function getRSpecFolder(): string {
 }
 
 function getSuffixFile(): string {
-  return vscode.workspace.getConfiguration().get(SETTINGS_SUFFIX_FILE) || 'spec'
+  return vscode.workspace.getConfiguration().get(SETTINGS_SUFFIX_FILE)
 }
 
 function clearTerminal() {
