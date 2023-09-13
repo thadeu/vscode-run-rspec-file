@@ -48,7 +48,7 @@
             },
             {
                 "command": "extension.runAllOpenedFiles",
-                "title": "RSpec: Run All Opened Files"
+                "title": "RSpec: Run Opened Files"
             },
             {
                 "command": "extension.runFileOnRspec",
