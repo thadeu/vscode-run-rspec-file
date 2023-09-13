@@ -10,7 +10,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.52.0"
+        "vscode": "^1.82.0"
     },
     "categories": [
         "Programming Languages",
@@ -131,20 +131,23 @@
     ],
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "compile": "npx webpack --mode production",
+        "publish": "npx vsce publish",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/lodash.get": "^4.4.7",
-        "@types/lodash.isempty": "^4.4.7",
         "@types/mocha": "^2.2.42",
         "@types/node": "^20.6.0",
-        "fs": "^0.0.1-security",
+        "@types/vscode": "^1.82.0",
+        "ts-loader": "^9.4.4",
         "tslint": "^5.20.1",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.37"
+        "typescript": "5",
+        "vsce": "^2.15.0",
+        "vscode": "^1.1.37",
+        "webpack": "^5.88.2",
+        "webpack-cli": "^5.1.4"
     },
     "dependencies": {
         "lodash.get": "^4.4.2",

@@ -1,5 +1,4 @@
 import * as vscode from 'vscode'
-import { readFile } from 'fs/promises'
 import get from 'lodash.get'
 
 type SettingsType = {
@@ -78,12 +77,14 @@ async function localSettings(): Promise<SettingsType> {
     const files = await vscode.workspace.findFiles('**/.vscode/settings.json')
     const file = files.find((o) => String(o.path).includes(workspace.uri.path))
 
-    const data = JSON.parse(await readFile(file.fsPath, 'utf8'))
+    const buffer = await vscode.workspace.fs.readFile(vscode.Uri.parse(file.fsPath))
+    const data = JSON.parse(buffer.toString())
 
     return data
   } catch (error) {
     console.error(error)
-    vscode.window.showWarningMessage('RSpec Extension: parse settings.json failed')
+
+    vscode.window.showErrorMessage('RSpec Extension: parse settings.json failed')
 
     return null
   }
