@@ -6,6 +6,7 @@ let lastExecuted = ''
 
 const SETTINGS_RSPEC_COMMAND_KEY = 'vscode-run-rspec-file.custom-command'
 const SETTINGS_RSPEC_FOLDER = 'vscode-run-rspec-file.folder'
+const SETTINGS_RSPEC_CONTROLLER_FOLDER = 'vscode-run-rspec-file.controller-spec-directory'
 const SETTINGS_SUFFIX_FILE = 'vscode-run-rspec-file.suffix'
 
 function getWorkspacePath(): string {
@@ -35,7 +36,7 @@ function getAsRelativePath(): string {
 }
 
 function getControllerSpecDirectory(): string {
-  return vscode.workspace.getConfiguration().get("vscode-run-rspec-file.controller-spec-directory");
+  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_CONTROLLER_FOLDER)
 }
 
 function getFilePath(path?: string): string {
@@ -43,13 +44,13 @@ function getFilePath(path?: string): string {
   let value = (path || getAsRelativePath()).replace(regex, '')
 
   // Check if the input file is in the "controllers" directory.
-  if (value.startsWith("controllers/")) {
+  if (value.startsWith('controllers/')) {
     // Replace "controllers" with the configured directory for controller specs.
-    const controllerSpecDirectory = getControllerSpecDirectory();
-    value = value.replace("controllers", controllerSpecDirectory);
+    const controllerSpecDirectory = getControllerSpecDirectory()
+    value = value.replace('controllers', controllerSpecDirectory)
   }
 
-  return value;
+  return value
 }
 
 function getCurrentFilePath() {
