@@ -137,9 +137,17 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
+        "@types/lodash.get": "^4.4.7",
+        "@types/lodash.isempty": "^4.4.7",
         "@types/mocha": "^2.2.42",
+        "@types/node": "^20.6.0",
+        "fs": "^0.0.1-security",
         "tslint": "^5.20.1",
         "typescript": "^2.6.1",
         "vscode": "^1.1.37"
+    },
+    "dependencies": {
+        "lodash.get": "^4.4.2",
+        "lodash.isempty": "^4.4.0"
     }
 }

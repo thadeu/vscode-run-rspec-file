@@ -1,31 +1,134 @@
 import * as vscode from 'vscode'
+import { readFile } from 'fs/promises'
+import get from 'lodash.get'
+import isEmpty from 'lodash.isempty'
 
 let terminals = {}
-let TERMINAL_NAME = 'RSpec Run File'
+let TERMINAL_NAME = 'RSpec Run'
 let lastExecuted = ''
 
+const EXTENSION_NAME = 'vscode-run-rspec-file'
 const SETTINGS_RSPEC_COMMAND_KEY = 'vscode-run-rspec-file.custom-command'
 const SETTINGS_RSPEC_FOLDER = 'vscode-run-rspec-file.folder'
 const SETTINGS_RSPEC_CONTROLLER_FOLDER = 'vscode-run-rspec-file.controller-spec-directory'
 const SETTINGS_SUFFIX_FILE = 'vscode-run-rspec-file.suffix'
 
-function getWorkspacePath(): string {
-  const folderPaths: string[] = vscode.workspace.workspaceFolders.map((workspaceFolder) => workspaceFolder.uri.path)
-  return folderPaths.find((path) => getFilename().includes(path))
+let isMultipleWorkSpaces = vscode.workspace.workspaceFolders.length > 1
+
+type SettingsType = {
+  customCommand?: any
+  folder?: any
+  suffix?: any
+  controllerFolder?: any
 }
 
-function getAsRelativePath(): string {
+const settingDefaultObject: SettingsType = {
+  customCommand: 'bundle exec rspec',
+  folder: 'spec',
+  suffix: 'spec',
+  controllerFolder: 'controllers',
+}
+
+async function globalSettings(): Promise<SettingsType> {
+  try {
+    let config = vscode.workspace.getConfiguration()
+
+    let customCommand = config.inspect('custom-command').defaultValue || config.inspect(SETTINGS_RSPEC_COMMAND_KEY).defaultValue
+
+    let folder = config.inspect('folder').defaultValue || config.inspect(SETTINGS_RSPEC_FOLDER).defaultValue
+
+    let controllerFolder = config.inspect('controller-spec-directory').defaultValue || config.inspect(SETTINGS_RSPEC_CONTROLLER_FOLDER).defaultValue
+
+    let suffix = config.inspect('suffix').defaultValue || config.inspect(SETTINGS_SUFFIX_FILE).defaultValue
+
+    return {
+      ...settingDefaultObject,
+      customCommand,
+      folder,
+      suffix,
+      controllerFolder,
+    }
+  } catch (error) {
+    console.error(error)
+
+    return settingDefaultObject
+  }
+}
+
+async function localSettings(): Promise<SettingsType> {
+  try {
+    const uri = vscode.window.activeTextEditor.document.uri
+    const workspace = vscode.workspace.getWorkspaceFolder(uri)
+
+    const files = await vscode.workspace.findFiles('**/.vscode/settings.json')
+    const file = files.find((o) => String(o.path).includes(workspace.uri.path))
+
+    const data = JSON.parse(await readFile(file.fsPath, 'utf8'))
+
+    return data
+  } catch (error) {
+    console.error(error)
+    vscode.window.showWarningMessage('RSpec Extension: parse settings.json failed')
+
+    return null
+  }
+}
+
+async function factorySettings(key?: keyof SettingsType) {
+  const globals = await globalSettings()
+
+  function getByKeyOrAll(object, key) {
+    if (key) {
+      return object[key]
+    }
+
+    return object
+  }
+
+  try {
+    const local = await localSettings()
+
+    let mapping = {
+      customCommand: get(local, SETTINGS_RSPEC_COMMAND_KEY) || globals['customCommand'],
+      folder: get(local, SETTINGS_RSPEC_FOLDER) || globals['folder'],
+      controllerFolder: get(local, SETTINGS_RSPEC_CONTROLLER_FOLDER) || globals['controllerFolder'],
+      suffix: get(local, SETTINGS_SUFFIX_FILE) || globals['suffix'],
+    }
+
+    return getByKeyOrAll(mapping, key)
+  } catch (error) {
+    console.error(error)
+
+    return getByKeyOrAll(globals, key)
+  }
+}
+
+function getWorkspace(): vscode.WorkspaceFolder {
+  let workspace = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri)
+
+  return workspace
+}
+
+function getWorkspacePath(): string {
+  let workspace = getWorkspace()
+
+  return workspace.uri.path
+}
+
+async function getAsRelativePath() {
   const workspaceProjectPath: string = getWorkspacePath()
   const rootFile: string = getFilename().replace(workspaceProjectPath, '')
+  const folder = await getRSpecFolder()
+
   const isApp: boolean = /^\/app\//.test(rootFile)
-  const isSpec: boolean = new RegExp(`^\/?${getRSpecFolder}\/`).test(rootFile)
+  const isSpec: boolean = new RegExp(`^\/?${folder}\/`).test(rootFile)
   const isLib: boolean = /^\/lib\//.test(rootFile)
 
   if (isApp) {
     const indexOfAppFolder: number = rootFile.indexOf('/app/')
     return rootFile.substr(indexOfAppFolder + 1)
   } else if (isSpec) {
-    const indexOfSpecFolder: number = rootFile.indexOf(`/${getRSpecFolder()}/`)
+    const indexOfSpecFolder: number = rootFile.indexOf(`/${folder}/`)
     return rootFile.substr(indexOfSpecFolder + 1)
   } else if (isLib) {
     const indexOfLibFolder: number = rootFile.indexOf('/lib/')
@@ -39,12 +142,13 @@ function getControllerSpecDirectory(): string {
   return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_CONTROLLER_FOLDER)
 }
 
-function getFilePath(path?: string): string {
-  let folder = getRSpecFolder()
-  let suffix = getSuffixFile()
+async function getFilePath(path?: string) {
+  let folder = await getRSpecFolder()
+  let suffix = await getSuffixFile()
+  let relativePath = await getAsRelativePath()
 
   let regex = new RegExp(`^(app\/)|(\.rb)|(_${suffix}.rb)|(${folder}\/)`, 'g')
-  let value = (path || getAsRelativePath()).replace(regex, '')
+  let value = (path || relativePath).replace(regex, '')
 
   // Check if the input file is in the "controllers" directory.
   if (value.startsWith('controllers/')) {
@@ -56,45 +160,48 @@ function getFilePath(path?: string): string {
   return value
 }
 
-function getCurrentFilePath() {
+async function getCurrentFilePath() {
   let filepath = ''
-  let filename = getOriginalFile().replace(new RegExp(`^${getRSpecFolder()}/`), '')
+  let filename = (await getOriginalFile()).replace(new RegExp(`^${getRSpecFolder()}/`), '')
 
-  if (isSpecFolder()) {
+  if (await isSpecFolder()) {
     if (isLibFolder()) {
       filepath = filename
     } else {
       filepath = `app/${filename}`
     }
   } else {
-    filepath = getSpecFilePath()
+    filepath = await getSpecFilePath()
   }
 
   return filepath
 }
 
-function getOriginalFile(): string {
-  return getSpecFilePath()
-    .replace(/spec\//g, '')
-    .replace(/(_spec|_test)?.rb$/, '.rb')
+async function getOriginalFile() {
+  return (await getSpecFilePath()).replace(/spec\//g, '').replace(/(_spec|_test)?.rb$/, '.rb')
 }
 
-function getSpecFilePath(path?: string) {
-  let file = [getFilePath(path)]
+async function getSpecFilePath(path?: string) {
+  let filepath = await getFilePath(path)
+  let file = [filepath]
+  let suffix = await getSuffixFile()
+  let folder = await getRSpecFolder()
 
-  if (getSuffixFile()) {
-    file = [...file, '_', getSuffixFile()]
+  if (suffix) {
+    file = [file, '_', suffix]
   }
 
   file.push('.rb')
 
-  let parts = [getRSpecFolder(), file.join('')]
+  let parts = [folder, file.join('')]
 
   return parts.join('/')
 }
 
-function isSpecFolder() {
-  let regex = new RegExp(`\/${getRSpecFolder()}\/`)
+async function isSpecFolder() {
+  let folder = await getRSpecFolder()
+  let regex = new RegExp(`\/${folder}\/`)
+
   return regex.test(getFilename())
 }
 
@@ -103,14 +210,26 @@ function isLibFolder() {
   return regex.test(getFilename())
 }
 
-function getTerminal() {
-  let currentTerminal: vscode.Terminal = terminals[TERMINAL_NAME]
+function getTerminal(): vscode.Terminal {
+  let workspaceName = getWorkspace().name
+  let name = [workspaceName, TERMINAL_NAME].join(' - ')
 
-  if (!currentTerminal) {
-    terminals[TERMINAL_NAME] = vscode.window.createTerminal(TERMINAL_NAME)
+  if (!isMultipleWorkSpaces) {
+    let opened = vscode.window.terminals.find((o) => o.name == name)
+
+    if (opened) {
+      return opened
+    }
+
+    return vscode.window.createTerminal(name)
   }
 
-  return terminals[TERMINAL_NAME]
+  if (get(terminals, name)) {
+    return get(terminals, name)
+  }
+
+  terminals[name] = vscode.window.createTerminal(name)
+  return get(terminals, name)
 }
 
 function getFilename() {
@@ -130,20 +249,23 @@ function execCommand(commandText: string) {
   lastExecuted = commandText
 }
 
-function bundleRspecAll() {
-  execCommand(getRSpecCommand())
+async function bundleRspecAll() {
+  execCommand(await getRSpecCommand())
 }
 
-function bundleRspecFile() {
-  let specFilename = getSpecFilePath()
-  let commandText = `${getRSpecCommand()} ${specFilename}`
+async function bundleRspecFile() {
+  let filename = await getSpecFilePath()
+  let command = await getRSpecCommand()
+  let commandText = `${command} ${filename}`
 
   return execCommand(commandText)
 }
 
-function bundleRspecLine() {
-  let specFilename = getSpecFilePath()
-  let commandText = `${getRSpecCommand()} ${specFilename}:${getActiveLine()}`
+async function bundleRspecLine() {
+  let filename = await getSpecFilePath()
+  let command = await getRSpecCommand()
+  let line = await getActiveLine()
+  let commandText = `${command} ${filename}:${line}`
 
   return execCommand(commandText)
 }
@@ -156,26 +278,25 @@ function bundleRspecLastExecuted() {
   }
 }
 
-function bundleRspecOpenedFiles() {
+async function bundleRspecOpenedFiles() {
   let documents = vscode.workspace.textDocuments
   const workspacePath: string = getWorkspacePath()
 
   let cache = {}
+  let filePathsUri = []
 
-  let filePathsUri = documents.map((o) => {
-    if (o.uri.path.endsWith('.rb')) {
-      let file: string = o.uri.path.replace(workspacePath, '')
+  for (let o of documents) {
+    if (o.fileName.endsWith('.rb') && o.fileName.includes(workspacePath)) {
+      let file: string = o.fileName.replace(workspacePath, '')
 
       if (file.startsWith('/')) {
         file = file.substring(1)
       }
 
-      let uri = getSpecFilePath(file)
+      let uri = await getSpecFilePath(file)
       cache[uri] = uri
-
-      return uri
     }
-  })
+  }
 
   filePathsUri = Object.keys(cache).filter((o) => !!o)
 
@@ -184,21 +305,27 @@ function bundleRspecOpenedFiles() {
   }
 
   let specFilename = filePathsUri.join(' ')
-  let commandText = `${getRSpecCommand()} ${specFilename}`
+  let commandText = `${await getRSpecCommand()} ${specFilename}`
 
-  execCommand(commandText)
+  return execCommand(commandText)
 }
 
-function getRSpecCommand(): string {
-  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_COMMAND_KEY)
+async function getRSpecCommand() {
+  const config = await factorySettings('customCommand')
+
+  return config
 }
 
-function getRSpecFolder(): string {
-  return vscode.workspace.getConfiguration().get(SETTINGS_RSPEC_FOLDER) || 'spec'
+async function getRSpecFolder() {
+  const config = await factorySettings('folder')
+
+  return config
 }
 
-function getSuffixFile(): string {
-  return vscode.workspace.getConfiguration().get(SETTINGS_SUFFIX_FILE)
+async function getSuffixFile() {
+  const config = await factorySettings('suffix')
+
+  return config
 }
 
 function clearTerminal() {
@@ -211,7 +338,13 @@ function bundleRspecFolder() {
 }
 
 async function toggleFile() {
-  let uri = vscode.Uri.file(`${vscode.workspace.rootPath}/${getCurrentFilePath()}`)
+  const filepath = await getCurrentFilePath()
+  const workspaceName = getWorkspace().name
+
+  const folders = vscode.workspace.workspaceFolders.map((o) => o.uri.fsPath)
+
+  const workspaceFsPath = folders.find((o) => o.includes(workspaceName))
+  const uri = vscode.Uri.file(`${workspaceFsPath}/${filepath}`)
 
   return vscode.commands.executeCommand('vscode.open', uri)
 }
@@ -244,12 +377,13 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('extension.runLineOnRspec', () => {
-      clearTerminal().then(() => {
-        if (isSpecFolder()) {
-          bundleRspecLine()
+    vscode.commands.registerCommand('extension.runLineOnRspec', async () => {
+      clearTerminal().then(async () => {
+        if (await isSpecFolder()) {
+          await bundleRspecLine()
         } else {
-          vscode.window.showWarningMessage('RSpec Line: only spec folder')
+          let folder = await getRSpecFolder()
+          vscode.window.showWarningMessage(`RSpec one Line: works only ${folder} folder configured. Check .vscode/settings.json file`)
         }
       })
     }),
