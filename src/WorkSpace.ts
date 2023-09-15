@@ -19,7 +19,7 @@ export default class WorkSpace {
     const index = fileUriArray.findIndex(findIndexCallback)
     const array = fileUriArray.slice(0, index)
 
-    this.uri = array.slice(0, index).join('/')
+    this.uri = array.join('/')
     this.name = array.slice(-1)[0]
 
     return {
