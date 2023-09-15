@@ -2,7 +2,7 @@
     "name": "vscode-run-rspec-file",
     "displayName": "vscode-run-rspec-file",
     "description": "Provide simple command to Run RSpec File",
-    "version": "0.5.29",
+    "version": "0.6.0",
     "publisher": "Thadeu",
     "icon": "rspec.png",
     "galleryBanner": {
@@ -117,7 +117,7 @@
                     "default": "spec",
                     "description": "Set an custom suffix files tests Example: \"test\""
                 },
-                "vscode-run-rspec-file.integration":  {
+                "vscode-run-rspec-file.integration": {
                     "type": "string",
                     "default": "rails",
                     "description": "Set your app mode. Example: \"rails\" or \"other\""
