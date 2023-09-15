@@ -1,0 +1,1 @@
+!function(){var r={560:function(r,e,o){throw Error("Failed to resolve /Users/thadeu/code/opensource-me/vscode-run-rspec-file/src/index.js in project root")}},e={};!function o(t){var n=e[t];if(void 0!==n)return n.exports;var s=e[t]={exports:{}};return r[t](s,s.exports,o),s.exports}("560")}();
