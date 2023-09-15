@@ -58,7 +58,7 @@ export async function globalSettings(): Promise<SettingsType> {
 
     let config = vscode.workspace.getConfiguration()
 
-    let customCommand = config.inspect('custom-command').defaultValue || config.inspect(SETTINGS_RSPEC_COMMAND_KEY).defaultValue
+    let customCommand = config.get('custom-command') || config.get(SETTINGS_RSPEC_COMMAND_KEY)
 
     let folder = config.inspect('folder').defaultValue || config.inspect(SETTINGS_RSPEC_FOLDER).defaultValue
 
