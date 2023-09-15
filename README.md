@@ -11,6 +11,7 @@ This extension provides basic commands for running spec files in build-in vscode
     - [Custom command](#custom-command)
     - [Custom folder](#custom-folder)
     - [Custom Suffix File](#custom-suffix-file)
+    - [Use cases](#use-cases)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -121,6 +122,71 @@ You should now write specs for your controllers as request specs ([source](http:
 ```json
 {
   "vscode-run-rspec-file.controller-spec-directory": "requests"
+}
+```
+
+### Custom integration type
+
+You can configure kind of integration would you use. Like `rails` or `lib` `others`. When `rails` is activated, we go mount workspace folder based in your structure for folders. For example:
+
+Rails usually use `app`, `lib`, `spec` or `test` folders, so, in your workspace must be first part before this folders. This add suport to use in multi-root/folders projects.
+
+```json
+{ "vscode-run-rspec-file.integration": "rails" }
+```
+
+### Use cases
+
+Project use another format to tests, like as:
+
+```
+| MundiAPI-RUBY
+  |- lib
+  |- test
+    |- test_charges_controller.rb
+```
+
+So you can configure like this.
+
+```json
+{
+  "vscode-run-rspec-file.custom-command": "bundle exec rake test",
+  "vscode-run-rspec-file.folder": "test",
+  "vscode-run-rspec-file.suffix": "",
+  "vscode-run-rspec-file.integration": "other"
+}
+```
+
+Another example, when use minitest instead of rspec
+
+```
+| packwerk
+  |- lib
+  |- test
+    |- integration
+      |- packwerk
+        |- custom_executable_integration_test.rb
+```
+
+```json
+{
+  "vscode-run-rspec-file.custom-command": "bundle exec rake test",
+  "vscode-run-rspec-file.folder": "test",
+  "vscode-run-rspec-file.suffix": "test",
+  "vscode-run-rspec-file.integration": "minitest"
+}
+```
+
+As result `bundle exec rake test test/integration/packwerk/custom_executable_integration_test.rb`
+
+And using Rails like Application and RSpec.
+
+```json
+{
+  "vscode-run-rspec-file.custom-command": "bundle exec rspec",
+  "vscode-run-rspec-file.folder": "spec",
+  "vscode-run-rspec-file.suffix": "spec",
+  "vscode-run-rspec-file.integration": "rails"
 }
 ```
 

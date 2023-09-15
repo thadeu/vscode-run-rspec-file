@@ -4,6 +4,14 @@ All notable changes to the "vscode-run-rspec-file" extension will be documented 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## v0.6.1
+
+- Added support to multi-root folders
+- Fix when we use suffix configuration
+- Fix when we use folder configuration
+- Fix when non rails like app
+- Cache settings when opened first
+
 ## v0.5.20
 
 - Added suppor to run all opened files [#25](https://github.com/thadeu/vscode-run-rspec-file/pull/25)
