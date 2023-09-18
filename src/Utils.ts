@@ -3,6 +3,7 @@ import get from 'lodash.get'
 
 import {
   SettingsType,
+  EXTENSION_NAME,
   SETTINGS_RSPEC_COMMAND_KEY,
   SETTINGS_RSPEC_FOLDER,
   SETTINGS_RSPEC_CONTROLLER_FOLDER,
