@@ -3,6 +3,7 @@ import get from 'lodash.get'
 
 import {
   SettingsType,
+  EXTENSION_NAME,
   SETTINGS_RSPEC_COMMAND_KEY,
   SETTINGS_RSPEC_FOLDER,
   SETTINGS_RSPEC_CONTROLLER_FOLDER,
@@ -58,7 +59,7 @@ export async function globalSettings(): Promise<SettingsType> {
 
     let config = vscode.workspace.getConfiguration()
 
-    let customCommand = config.get('custom-command') || config.get(SETTINGS_RSPEC_COMMAND_KEY)
+    let customCommand = config.inspect('custom-command').defaultValue || config.inspect(SETTINGS_RSPEC_COMMAND_KEY).defaultValue
 
     let folder = config.inspect('folder').defaultValue || config.inspect(SETTINGS_RSPEC_FOLDER).defaultValue
 
