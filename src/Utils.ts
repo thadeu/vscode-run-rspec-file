@@ -3,6 +3,7 @@ import get from 'lodash.get'
 
 import {
   SettingsType,
+  EXTENSION_NAME,
   SETTINGS_RSPEC_COMMAND_KEY,
   SETTINGS_RSPEC_FOLDER,
   SETTINGS_RSPEC_CONTROLLER_FOLDER,
@@ -51,22 +52,28 @@ export function clearTerminal() {
 }
 
 export async function globalSettings(): Promise<SettingsType> {
+  let workspaceName = getWorkspace().name
+
   try {
-    if (globalsCache[getWorkspace().name]) {
-      return globalsCache[getWorkspace().name]
+    if (globalsCache[workspaceName]) {
+      return globalsCache[workspaceName]
     }
 
-    let config = vscode.workspace.getConfiguration()
+    function valueByKey(key: string, config: vscode.WorkspaceConfiguration) {
+      const valueByGet = config.get(key)
+      const valueByExtension = config.get(`${EXTENSION_NAME}.${key}`)
+      const valueByInspect = config.inspect(`${EXTENSION_NAME}.${key}`)?.defaultValue
 
-    let customCommand = config.inspect('custom-command').defaultValue || config.inspect(SETTINGS_RSPEC_COMMAND_KEY).defaultValue
+      return valueByGet || valueByExtension || valueByInspect
+    }
 
-    let folder = config.inspect('folder').defaultValue || config.inspect(SETTINGS_RSPEC_FOLDER).defaultValue
+    let config = vscode.workspace.getConfiguration(EXTENSION_NAME)
 
-    let controllerFolder = config.inspect('controller-spec-directory').defaultValue || config.inspect(SETTINGS_RSPEC_CONTROLLER_FOLDER).defaultValue
-
-    let suffix = config.inspect('suffix').defaultValue || config.inspect(SETTINGS_SUFFIX_FILE).defaultValue
-
-    let integration = config.inspect('integration').defaultValue || config.inspect(SETTINGS_INTEGRATION_TYPE).defaultValue
+    let customCommand = valueByKey('custom-command', config)
+    let folder = valueByKey('folder', config)
+    let controllerFolder = valueByKey('controller-spec-directory', config)
+    let suffix = valueByKey('suffix', config)
+    let integration = valueByKey('integration', config)
 
     let mapping = {
       ...SETTINGS_DEFAULT,
@@ -77,7 +84,7 @@ export async function globalSettings(): Promise<SettingsType> {
       integration,
     }
 
-    globalsCache[getWorkspace().name] = mapping
+    globalsCache[workspaceName] = mapping
 
     return mapping
   } catch (error) {
@@ -108,8 +115,10 @@ export async function localSettings(): Promise<SettingsType> {
 }
 
 export async function factorySettings(key?: keyof SettingsType) {
-  if (settingsCache[getWorkspace().name]) {
-    return getByKeyOrAll(settingsCache[getWorkspace().name], key)
+  let workspaceName = getWorkspace().name
+
+  if (settingsCache[workspaceName]) {
+    return getByKeyOrAll(settingsCache[workspaceName], key)
   }
 
   const globals = await globalSettings()
@@ -125,7 +134,7 @@ export async function factorySettings(key?: keyof SettingsType) {
       integration: get(local, SETTINGS_INTEGRATION_TYPE) || globals['integration'],
     }
 
-    settingsCache[getWorkspace().name] = mapping
+    settingsCache[workspaceName] = mapping
 
     return getByKeyOrAll(mapping, key)
   } catch (error) {
