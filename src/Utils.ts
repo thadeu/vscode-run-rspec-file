@@ -101,6 +101,10 @@ export async function localSettings(): Promise<SettingsType> {
     const files = await vscode.workspace.findFiles('**/.vscode/settings.json')
     const file = files.find((o) => String(o.path).includes(workspace.path))
 
+    if (!file) {
+      return null
+    }
+
     const buffer = await vscode.workspace.fs.readFile(vscode.Uri.parse(file.fsPath))
     const data = JSON.parse(buffer.toString())
 
