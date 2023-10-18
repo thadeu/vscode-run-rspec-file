@@ -3,7 +3,14 @@ import get from 'lodash.get'
 
 import FileObject from './FileObject'
 
-import { getWorkspace, factorySettings, isMultipleWorkSpaces, getActiveLine, clearTerminal } from './Utils'
+import {
+  getWorkspace,
+  factorySettings,
+  isMultipleWorkSpaces,
+  getActiveLine,
+  clearTerminal,
+  createTerminal,
+} from './Utils'
 
 let terminals = {}
 let lastExecuted = ''
@@ -19,14 +26,14 @@ function getTerminal(): vscode.Terminal {
       return opened
     }
 
-    return vscode.window.createTerminal({ name, cwd: workspace.path })
+    return createTerminal(name, workspace.path)
   }
 
   if (get(terminals, name)) {
     return get(terminals, name)
   }
 
-  terminals[name] = vscode.window.createTerminal({ name, cwd: workspace.path })
+  terminals[name] = createTerminal(name, workspace.path)
   return get(terminals, name)
 }
 

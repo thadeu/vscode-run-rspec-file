@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import get from 'lodash.get'
+import nodePath from 'path'
 
 import {
   SettingsType,
@@ -31,6 +32,12 @@ export function getWorkspace() {
     path: project.uri,
     name: project.name,
   }
+}
+
+export function createTerminal(name: string, path: string) {
+  let cwd = nodePath.isAbsolute(path) ? path : `/${path}`
+
+  return vscode.window.createTerminal({ name, cwd })
 }
 
 export function getByKeyOrAll(object, key) {
