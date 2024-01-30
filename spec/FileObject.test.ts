@@ -83,7 +83,7 @@ describe('#toJSON', () => {
     expect(object.isLibrary(filepath)).toBe(false)
     expect(object.isExpectation(filepath)).toBe(false)
 
-    // expect(result.name).toBe('controllers/aliquots_controller.rb')
+    expect(result.name).toBe('controllers/aliquots_controller.rb')
     expect(result.ext).toBe('.rb')
     expect(result.namespace).toBe('app')
     expect(result.suffix).toBe(undefined)
