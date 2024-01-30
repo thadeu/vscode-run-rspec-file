@@ -5,18 +5,6 @@ const railsConfig = { integration: 'rails', folder: 'spec', suffix: 'spec' }
 
 describe('#toJSON', () => {
   test('when workspace is one folder', () => {
-    let fileUri = '/Users/thadeu/code/opensource-community/todo-bcdd/app/app/models/todo/item/complete.rb'
-
-    const workSpace = new WorkSpace(fileUri)
-    const project = workSpace.toJSON()
-    const file = workSpace.fromFileUri(railsConfig)
-
-    expect(project.uri).toBe('Users/thadeu/code/opensource-community/todo-bcdd')
-    expect(project.name).toBe('todo-bcdd')
-    expect(file.path).toBe('app/models/todo/item/complete.rb')
-  })
-
-  test('when workspace is one folder', () => {
     let fileUri = '/Users/thadeu/code/opensource-community/todo-bcdd/app/models/todo/item/complete.rb'
 
     const workSpace = new WorkSpace(fileUri)

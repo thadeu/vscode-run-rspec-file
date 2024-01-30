@@ -26,7 +26,7 @@ export default class FileObject {
 
   constructor(filepath?: string, config?: any) {
     this.config = config || {}
-    this.filepath = filepath.replace(/app(\/app?\/?)/, `app/`)
+    this.filepath = filepath
   }
 
   static fromRelativeUri(filepath?: string, config?: any): FileObjectType {

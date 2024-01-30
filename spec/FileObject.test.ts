@@ -66,33 +66,6 @@ describe('#toJSON', () => {
     expect(result.specPath).toBe('spec/requests/aliquots_controller_spec.rb')
   })
 
-  test('with rails double app file and custom controllers folder', () => {
-    let filepath = 'app/app/controllers/aliquots_controller.rb'
-
-    let config = {
-      integration: 'rails',
-      folder: 'spec',
-      suffix: 'spec',
-      controllerFolder: 'requests',
-    }
-
-    let object = new FileObject(filepath, config)
-
-    let result = object.toJSON()
-
-    expect(object.isLibrary(filepath)).toBe(false)
-    expect(object.isExpectation(filepath)).toBe(false)
-
-    expect(result.name).toBe('controllers/aliquots_controller.rb')
-    expect(result.ext).toBe('.rb')
-    expect(result.namespace).toBe('app')
-    expect(result.suffix).toBe(undefined)
-
-    expect(result.isRailsApp).toBe(true)
-    expect(result.inversePath).toBe('spec/requests/aliquots_controller_spec.rb')
-    expect(result.specPath).toBe('spec/requests/aliquots_controller_spec.rb')
-  })
-
   test('with rails spec file and custom controllers folder', () => {
     let filepath = 'spec/requests/aliquots_controller_spec.rb'
 

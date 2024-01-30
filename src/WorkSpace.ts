@@ -9,7 +9,7 @@ export default class WorkSpace {
   uri: string
 
   constructor(fileUri: string) {
-    this.fileUri = fileUri.replace(/app(\/app?\/?)/, `app/`)
+    this.fileUri = fileUri
   }
 
   toJSON() {
