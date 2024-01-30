@@ -9,7 +9,7 @@ export default class WorkSpace {
   uri: string
 
   constructor(fileUri: string) {
-    this.fileUri = fileUri
+    this.fileUri = fileUri.replace('/app/app/', '/app/')
   }
 
   toJSON() {
@@ -33,6 +33,7 @@ export default class WorkSpace {
     fileUri = fileUri.replace(this.uri, '')
     fileUri = fileUri.replace(/^\/?\/?/, '')
 
-    return FileObject.fromRelativeUri(fileUri, config)
+    let newUri = FileObject.fromRelativeUri(fileUri, config)
+    return newUri
   }
 }
