@@ -25,8 +25,8 @@ export default class FileObject {
   }
 
   constructor(filepath?: string, config?: any) {
-    this.config = config || {}
     this.filepath = filepath
+    this.config = config || {}
   }
 
   static fromRelativeUri(filepath?: string, config?: any): FileObjectType {
@@ -75,7 +75,7 @@ export default class FileObject {
         result.inversePath = ['lib', nameWithoutSuffix].join('/').replace(/^(lib\/)(lib)/, '$2')
       } else {
         nameWithoutSuffix = nameWithoutSuffix.replace('requests', 'controllers')
-        result.inversePath = ['app', nameWithoutSuffix].join('/').replace(/^(app\/?app\/?)(app)/, '$2')
+        result.inversePath = ['app', nameWithoutSuffix].join('/').replace(/^(app\/)(app)/, '$2')
       }
     } else {
       let nameByMode = this.isRailsApp() ? name : filepath
