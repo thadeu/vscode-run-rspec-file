@@ -145,13 +145,25 @@ describe('#toJSON', () => {
       const project = workSpace.toJSON()
       const file = workSpace.fromFileUri(railsConfig)
 
-      console.log([project, file])
-
-      // expect(project.uri).toBe('Users/thadeu/code/atendesimples/atendesimples-app')
-      // expect(project.name).toBe('atendesimples-app')
+      expect(project.uri).toBe('app')
+      expect(project.name).toBe('app')
       expect(file.path).toBe('app/controllers/advanced_configurations_controller.rb')
       expect(file.specPath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
       expect(file.inversePath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
+    })
+
+    test('when workspace use spec file', () => {
+      let fileUri = '/app/spec/controllers/advanced_configurations_controller_spec.rb'
+
+      const workSpace = new WorkSpace(fileUri)
+      const project = workSpace.toJSON()
+      const file = workSpace.fromFileUri(railsConfig)
+
+      expect(project.uri).toBe('app')
+      expect(project.name).toBe('app')
+      expect(file.path).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
+      expect(file.specPath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
+      expect(file.inversePath).toBe('app/controllers/advanced_configurations_controller.rb')
     })
   })
 })

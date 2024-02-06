@@ -1,5 +1,6 @@
 import path from 'node:path'
 import compact from 'lodash.compact'
+import isEmpty from 'lodash.isempty'
 
 import FileObject from './FileObject'
 
@@ -17,7 +18,11 @@ export default class WorkSpace {
 
     const findIndexCallback = (o) => new RegExp(`^(app|spec|test|lib)$`).test(o)
     const index = fileUriArray.findIndex(findIndexCallback)
-    const array = fileUriArray.slice(0, index)
+    let array = fileUriArray.slice(0, index)
+
+    if (isEmpty(array)) {
+      array = fileUriArray.slice(0, 1)
+    }
 
     this.uri = array.join('/')
     this.name = array.slice(-1)[0]
