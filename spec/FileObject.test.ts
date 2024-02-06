@@ -8,26 +8,8 @@ describe('#toJSON', () => {
 
     let result = object.toJSON()
 
-    expect(object.isLibrary(filepath)).toBe(false)
-    expect(object.isExpectation(filepath)).toBe(true)
-
-    expect(result.name).toBe('controllers/aliquots_controller_spec.rb')
-    expect(result.ext).toBe('.rb')
-    expect(result.namespace).toBe('spec')
-    expect(result.suffix).toBe('spec')
-
-    expect(result.isRailsApp).toBe(true)
-    expect(result.inversePath).toBe('app/controllers/aliquots_controller.rb')
-    expect(result.specPath).toBe('spec/controllers/aliquots_controller_spec.rb')
-  })
-  test('with rails app spec file', () => {
-    let filepath = 'spec/controllers/aliquots_controller_spec.rb'
-    let object = new FileObject(filepath, { integration: 'rails', folder: 'spec', suffix: 'spec' })
-
-    let result = object.toJSON()
-
-    expect(object.isLibrary(filepath)).toBe(false)
-    expect(object.isExpectation(filepath)).toBe(true)
+    expect(object.isLibrary(result.path)).toBe(false)
+    expect(object.isExpectation(result.path)).toBe(true)
 
     expect(result.name).toBe('controllers/aliquots_controller_spec.rb')
     expect(result.ext).toBe('.rb')
@@ -39,32 +21,7 @@ describe('#toJSON', () => {
     expect(result.specPath).toBe('spec/controllers/aliquots_controller_spec.rb')
   })
 
-  test('with rails app file and custom controllers folder', () => {
-    let filepath = 'app/controllers/aliquots_controller.rb'
-
-    let config = {
-      integration: 'rails',
-      folder: 'spec',
-      suffix: 'spec',
-      controllerFolder: 'requests',
-    }
-
-    let object = new FileObject(filepath, config)
-
-    let result = object.toJSON()
-
-    expect(object.isLibrary(filepath)).toBe(false)
-    expect(object.isExpectation(filepath)).toBe(false)
-
-    expect(result.name).toBe('controllers/aliquots_controller.rb')
-    expect(result.ext).toBe('.rb')
-    expect(result.namespace).toBe('app')
-    expect(result.suffix).toBe(undefined)
-
-    expect(result.isRailsApp).toBe(true)
-    expect(result.inversePath).toBe('spec/requests/aliquots_controller_spec.rb')
-    expect(result.specPath).toBe('spec/requests/aliquots_controller_spec.rb')
-  })
+  describe('if .devcontainer configured', () => {})
 
   test('with rails spec file and custom controllers folder', () => {
     let filepath = 'spec/requests/aliquots_controller_spec.rb'

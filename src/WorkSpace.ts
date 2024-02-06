@@ -32,6 +32,9 @@ export default class WorkSpace {
     let fileUri = this.fileUri
     fileUri = fileUri.replace(this.uri, '')
     fileUri = fileUri.replace(/^\/?\/?/, '')
+    fileUri = fileUri.replace(/^app\/?app\/?/, 'app/')
+    fileUri = fileUri.replace(/^app\/?spec\/?/, 'spec/')
+    fileUri = fileUri.replace(/^app\/?test\/?/, 'test/')
 
     return FileObject.fromRelativeUri(fileUri, config)
   }

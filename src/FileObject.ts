@@ -7,7 +7,7 @@ type FileObjectType = {
   name?: string
   suffix?: string
   ext?: string
-  path?: string
+  path?: string | any
   inversePath?: string
   specPath?: string
   isRailsApp?: boolean
