@@ -2,7 +2,7 @@ import path from 'node:path'
 import compact from 'lodash.compact'
 import get from 'lodash.get'
 
-type FileObjectType = {
+export type FileObjectType = {
   namespace?: string
   name?: string
   suffix?: string

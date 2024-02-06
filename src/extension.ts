@@ -65,6 +65,8 @@ async function bundleRspecFile(line?: any) {
     commandText = `${commandText}:${line}`
   }
 
+  console.log(`Running bundleRspec command ${commandText}`)
+
   return execCommand(commandText)
 }
 
@@ -116,9 +118,10 @@ async function toggleFile() {
 
   let workspace = getWorkspace()
   let file = workspace.method.fromFileUri(config)
-  let uri = vscode.Uri.file(`${workspace.path}/${file.inversePath}`)
+  let uri = [workspace?.path, file?.inversePath].filter(Boolean).join('/')
+  console.log(`Running toggleFile path ${uri}`)
 
-  return vscode.commands.executeCommand('vscode.open', uri)
+  return vscode.commands.executeCommand('vscode.open', vscode.Uri.file(uri))
 }
 
 export async function activate(context: vscode.ExtensionContext) {

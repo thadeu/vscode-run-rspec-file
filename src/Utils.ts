@@ -13,7 +13,6 @@ import {
   SETTINGS_DEFAULT,
 } from './Constants'
 
-import FileObject from './FileObject'
 import WorkSpace from './WorkSpace'
 
 let settingsCache = {}
