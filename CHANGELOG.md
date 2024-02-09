@@ -4,6 +4,10 @@ All notable changes to the "vscode-run-rspec-file" extension will be documented 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## v0.6.12
+
+- Fix when using devcontainer with /app project
+
 ## v0.6.1
 
 - Added support to multi-root folders
