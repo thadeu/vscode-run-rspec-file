@@ -123,4 +123,13 @@ describe('#toJSON', () => {
     expect(result.inversePath).toBe('lib/complete_account.rb')
     expect(result.specPath).toBe('test/lib/complete_account_test.rb')
   })
+
+  test('when workspace use app folder', () => {
+    let fileUri = '/app/models/user.rb'
+
+    const fileObject = new FileObject(fileUri)
+    const file = fileObject.toJSON()
+
+    expect(file.specPath).toBe('spec/models/user_spec.rb')
+  })
 })

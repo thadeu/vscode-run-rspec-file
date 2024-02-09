@@ -24,9 +24,16 @@ export default class FileObject {
     controllerFolder: string
   }
 
-  constructor(filepath?: string, config?: any) {
+  constructor(filepath?: string, config = {}) {
     this.filepath = filepath
-    this.config = config || {}
+
+    this.config = {
+      suffix: 'spec',
+      folder: 'spec',
+      integration: 'rails',
+      controllerFolder: 'controllers',
+      ...(config || {}),
+    }
   }
 
   static fromRelativeUri(filepath?: string, config?: any): FileObjectType {
@@ -42,6 +49,8 @@ export default class FileObject {
   isLibrary = (text: string) => /lib/.test(text)
 
   isRailsApp = () => this.config?.integration == 'rails'
+
+  isDevContainer = () => this.config?.integration == 'devcontainer'
 
   toJSON(): FileObjectType {
     let parts = compact(this.filepath.split(path.sep))
@@ -66,6 +75,7 @@ export default class FileObject {
       inversePath: '',
       specPath: '',
       isRailsApp: this.isRailsApp(),
+      isDevContainer: this.isDevContainer(),
     }
 
     if (this.isExpectation(suffix)) {
@@ -74,15 +84,20 @@ export default class FileObject {
       if (this.isLibrary(filepath)) {
         result.inversePath = ['lib', nameWithoutSuffix].join('/').replace(/^(lib\/)(lib)/, '$2')
       } else {
-        nameWithoutSuffix = nameWithoutSuffix.replace('requests', 'controllers')
-        result.inversePath = ['app', nameWithoutSuffix].join('/').replace(/^(app\/)(app)/, '$2')
+        nameWithoutSuffix = nameWithoutSuffix.replace('requests', 'controllers').replace(/^spec\//, '')
+        result.inversePath = ['app', nameWithoutSuffix].join('/')
       }
     } else {
       let nameByMode = this.isRailsApp() ? name : filepath
+      nameByMode = this.isDevContainer() ? filepath : name
+
+      if (this.isDevContainer()) {
+        nameByMode = nameByMode.replace(/^app\//, '')
+      }
 
       let nameWithSuffix = nameByMode
         .replace('controllers', this.controllerFolderOrDefault())
-        .replace('.rb', `_${this.config?.suffix}.rb`)
+        .replace('.rb', `_${this.config?.suffix || 'spec'}.rb`)
 
       result.inversePath = compact([this.config?.folder, nameWithSuffix]).join('/')
     }

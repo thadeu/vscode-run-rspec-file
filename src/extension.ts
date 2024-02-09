@@ -118,13 +118,12 @@ async function bundleRspecOpenedFiles() {
 
 async function toggleFile() {
   let config = await factorySettings()
-
   let workspace = getWorkspace()
 
   let file = workspace.method.fromFileUri(config)
-  let uri = [workspace?.path, file?.inversePath].filter(Boolean).join('/')
+  log(`WorkSpace[fromFileUri] file`, JSON.stringify(file))
 
-  log('Extension[toogleFile]', JSON.stringify({ workspace, uri }))
+  let uri = [workspace?.path, file?.inversePath].filter(Boolean).join('/')
 
   return vscode.commands.executeCommand('vscode.open', vscode.Uri.file(uri))
 }

@@ -78,6 +78,19 @@ describe('#toJSON', () => {
     expect(file.specPath).toBe('test/lib/complete_account_test.rb')
   })
 
+  test('when workspace use app folder', () => {
+    let fileUri = '/Users/thadeu/code/atendesimples/atendesimples-app/app/models/user.rb'
+
+    const workSpace = new WorkSpace(fileUri)
+    const project = workSpace.toJSON()
+    const file = workSpace.fromFileUri(railsConfig)
+
+    expect(project.uri).toBe('Users/thadeu/code/atendesimples/atendesimples-app')
+    expect(project.name).toBe('atendesimples-app')
+    expect(file.path).toBe('app/models/user.rb')
+    expect(file.specPath).toBe('spec/models/user_spec.rb')
+  })
+
   test('when workspace use spec file', () => {
     let fileUri =
       '/Users/thadeu/code/atendesimples/atendesimples-app/spec/controllers/advanced_configurations_controller_spec.rb'
@@ -94,45 +107,42 @@ describe('#toJSON', () => {
 
   describe('.devcontainer workspace', () => {
     test('when workspace use spec file', () => {
-      let fileUri =
-        '/Users/thadeu/code/atendesimples/atendesimples-app/app/spec/controllers/advanced_configurations_controller_spec.rb'
+      let fileUri = '/app/spec/controllers/advanced_configurations_controller_spec.rb'
 
       const workSpace = new WorkSpace(fileUri)
       const project = workSpace.toJSON()
-      const file = workSpace.fromFileUri(railsConfig)
+      const file = workSpace.fromFileUri({ ...railsConfig, integration: 'devcontainer' })
 
-      expect(project.uri).toBe('Users/thadeu/code/atendesimples/atendesimples-app')
-      expect(project.name).toBe('atendesimples-app')
+      expect(project.uri).toBe('app')
+      expect(project.name).toBe('app')
       expect(file.path).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
       expect(file.specPath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
       expect(file.inversePath).toBe('app/controllers/advanced_configurations_controller.rb')
     })
 
     test('when workspace use app file', () => {
-      let fileUri =
-        '/Users/thadeu/code/atendesimples/atendesimples-app/app/app/controllers/advanced_configurations_controller.rb'
+      let fileUri = '/app/app/controllers/advanced_configurations_controller.rb'
 
       const workSpace = new WorkSpace(fileUri)
       const project = workSpace.toJSON()
-      const file = workSpace.fromFileUri(railsConfig)
+      const file = workSpace.fromFileUri({ ...railsConfig, integration: 'devcontainer' })
 
-      expect(project.uri).toBe('Users/thadeu/code/atendesimples/atendesimples-app')
-      expect(project.name).toBe('atendesimples-app')
+      expect(project.uri).toBe('app')
+      expect(project.name).toBe('app')
       expect(file.path).toBe('app/controllers/advanced_configurations_controller.rb')
       expect(file.specPath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
       expect(file.inversePath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
     })
 
     test('when workspace use app file', () => {
-      let fileUri =
-        '/Users/thadeu/code/atendesimples/atendesimples-nfe/app/app/controllers/advanced_configurations_controller.rb'
+      let fileUri = '/app/app/controllers/advanced_configurations_controller.rb'
 
       const workSpace = new WorkSpace(fileUri)
       const project = workSpace.toJSON()
-      const file = workSpace.fromFileUri(railsConfig)
+      const file = workSpace.fromFileUri({ ...railsConfig, integration: 'devcontainer' })
 
-      expect(project.uri).toBe('Users/thadeu/code/atendesimples/atendesimples-nfe')
-      expect(project.name).toBe('atendesimples-nfe')
+      expect(project.uri).toBe('app')
+      expect(project.name).toBe('app')
       expect(file.path).toBe('app/controllers/advanced_configurations_controller.rb')
       expect(file.specPath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
       expect(file.inversePath).toBe('spec/controllers/advanced_configurations_controller_spec.rb')
