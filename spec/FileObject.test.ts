@@ -21,8 +21,6 @@ describe('#toJSON', () => {
     expect(result.specPath).toBe('spec/controllers/aliquots_controller_spec.rb')
   })
 
-  describe('if .devcontainer configured', () => {})
-
   test('with rails spec file and custom controllers folder', () => {
     let filepath = 'spec/requests/aliquots_controller_spec.rb'
 

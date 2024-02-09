@@ -20,8 +20,15 @@ let globalsCache = {}
 
 export let isMultipleWorkSpaces = () => vscode.workspace.workspaceFolders.length > 1
 
+export const outputChannel = vscode.window.createOutputChannel('vscode-run-rspec-file')
+
+export function log(...messages: any[]) {
+  outputChannel.appendLine(messages.join(' '))
+}
+
 export function getWorkspace() {
   const uri = vscode.window.activeTextEditor.document.uri.path
+  log('Utils[uri]', uri)
 
   const workspace = new WorkSpace(uri)
   const project = workspace.toJSON()

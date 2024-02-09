@@ -10,6 +10,7 @@ import {
   getActiveLine,
   clearTerminal,
   createTerminal,
+  log,
 } from './Utils'
 
 let terminals = {}
@@ -59,13 +60,15 @@ async function bundleRspecFile(line?: any) {
   let workspace = getWorkspace()
   let file = workspace.method.fromFileUri(config)
 
+  log(`Extension[bundleRspecFile]`, JSON.stringify({ workspace, file }))
+
   let commandText = `${config.customCommand} ${file.specPath}`
 
   if (line) {
     commandText = `${commandText}:${line}`
   }
 
-  console.log(`Running bundleRspec command ${commandText}`)
+  log(`Running bundleRspec command ${commandText}`)
 
   return execCommand(commandText)
 }
@@ -117,9 +120,11 @@ async function toggleFile() {
   let config = await factorySettings()
 
   let workspace = getWorkspace()
+
   let file = workspace.method.fromFileUri(config)
   let uri = [workspace?.path, file?.inversePath].filter(Boolean).join('/')
-  console.log(`Running toggleFile path ${uri}`)
+
+  log('Extension[toogleFile]', JSON.stringify({ workspace, uri }))
 
   return vscode.commands.executeCommand('vscode.open', vscode.Uri.file(uri))
 }
