@@ -10,12 +10,16 @@ export type FileObjectType = {
   path?: string | any
   inversePath?: string
   specPath?: string
+  isExpectation?: boolean
   isRailsApp?: boolean
+  isLibrary?: boolean
+  isDevContainer?: boolean
   controllerFolder?: string
 }
 
 export default class FileObject {
   filepath: string
+  workspace: any
 
   config: {
     suffix: string
@@ -24,8 +28,9 @@ export default class FileObject {
     controllerFolder: string
   }
 
-  constructor(filepath?: string, config = {}) {
+  constructor(filepath?: string, config = {}, workspace = {}) {
     this.filepath = filepath
+    this.workspace = workspace
 
     this.config = {
       suffix: 'spec',
@@ -36,24 +41,110 @@ export default class FileObject {
     }
   }
 
-  static fromRelativeUri(filepath?: string, config?: any): FileObjectType {
-    return new FileObject(filepath, config).toJSON()
+  static fromRelativeUri(filepath?: string, config?: any, workspace?: {}): FileObjectType {
+    return new FileObject(filepath, config, workspace).toJSON()
   }
 
   controllerFolderOrDefault() {
     return get(this.config, 'controllerFolder', 'controllers')
   }
 
-  isExpectation = (text: string) => /^(spec|test)/.test(text)
+  isExpectation = (text: string) => /(spec|test)$/.test(String(text).replace(/\.rb/, ''))
 
   isLibrary = (text: string) => /lib/.test(text)
 
   isRailsApp = () => this.config?.integration == 'rails'
 
-  isDevContainer = () => this.config?.integration == 'devcontainer'
+  isDevContainer = () => this.config?.integration == 'devcontainer' || this.workspace.remoteName == 'dev-container'
+
+  // Strategy?
+  specPath(rawpath) {
+    // prettier-ignore
+    let filepath = rawpath
+      .replace(this.workspace.uri, '')
+      .split(path.sep)
+      .filter(Boolean)
+      .join('/')
+
+    if (filepath.match(/_(spec.rb|test.rb)$/)) {
+      return filepath
+    }
+
+    const { folder, suffix } = this.config
+    const tree = compact(filepath.split(path.sep))
+    const fileFolder = tree[0]
+    const subtree = tree.slice(1)
+
+    function hydrate(str: string, suffix: string): string {
+      let newstr = str.replace(/\.rb$/, '')
+      return `${newstr}_${suffix}.rb`
+    }
+
+    if (fileFolder == 'lib') {
+      const file = hydrate(tree.join('/'), suffix)
+      return `${folder}/${file}`
+    }
+
+    if (fileFolder == 'app') {
+      let file = hydrate(subtree.join('/'), suffix)
+      file = file.replace('controllers', this.controllerFolderOrDefault())
+
+      return `${folder}/${file}`
+    }
+
+    return filepath
+  }
+
+  inversePath(rawpath: string) {
+    // prettier-ignore
+    let filepath = rawpath
+      .replace(this.workspace.uri, '')
+      .split(path.sep)
+      .filter(Boolean)
+      .join('/');
+
+    function hydrate(str: string): string {
+      let newstr = str.replace(/_(spec|test)\.rb$/, '')
+      return `${newstr}.rb`
+    }
+
+    // Question: we're in the lib folder?
+    if (filepath.match(/^lib\//)) {
+      let inversed = this.specPath(rawpath)
+      return inversed
+    }
+
+    // Question: we're in the app folder?
+    if (filepath.match(/\/?^app\//)) {
+      let inversed = this.specPath(rawpath)
+      return inversed
+    }
+
+    // Question: we're in the spec folder?
+    if (filepath.match(/_(spec\.rb|test\.rb)$/)) {
+      let newstr = filepath.split('/').slice(1).join('/')
+      let inversed = hydrate(newstr)
+
+      if (inversed.match(/^controllers/)) {
+        inversed = inversed.replace('controllers', this.controllerFolderOrDefault())
+      }
+
+      if (inversed.match(/^requests/)) {
+        inversed = inversed.replace('requests', 'controllers')
+      }
+
+      if (this.isRailsApp() && !inversed.match(/^(lib|spec|test)\//)) {
+        return `app/${inversed}`
+      }
+
+      return inversed
+    }
+
+    return filepath
+  }
 
   toJSON(): FileObjectType {
-    let parts = compact(this.filepath.split(path.sep))
+    let parts = compact(this.filepath.replace(this.workspace.uri, '').split(path.sep))
 
     let namespace = parts[0]
     let name = parts.slice(1).join('/')
@@ -72,37 +163,13 @@ export default class FileObject {
       suffix,
       ext,
       path: filepath,
-      inversePath: '',
-      specPath: '',
+      isExpectation: this.isExpectation(suffix),
+      isLibrary: this.isLibrary(namespace),
       isRailsApp: this.isRailsApp(),
       isDevContainer: this.isDevContainer(),
+      specPath: this.specPath(this.filepath),
+      inversePath: this.inversePath(this.filepath),
     }
-
-    if (this.isExpectation(suffix)) {
-      let nameWithoutSuffix = name.replace(new RegExp(`_${suffix}`), '')
-
-      if (this.isLibrary(filepath)) {
-        result.inversePath = ['lib', nameWithoutSuffix].join('/').replace(/^(lib\/)(lib)/, '$2')
-      } else {
-        nameWithoutSuffix = nameWithoutSuffix.replace('requests', 'controllers').replace(/^spec\//, '')
-        result.inversePath = ['app', nameWithoutSuffix].join('/')
-      }
-    } else {
-      let nameByMode = this.isRailsApp() ? name : filepath
-      nameByMode = this.isDevContainer() ? filepath : name
-
-      if (this.isDevContainer()) {
-        nameByMode = nameByMode.replace(/^app\//, '')
-      }
-
-      let nameWithSuffix = nameByMode
-        .replace('controllers', this.controllerFolderOrDefault())
-        .replace('.rb', `_${this.config?.suffix || 'spec'}.rb`)
-
-      result.inversePath = compact([this.config?.folder, nameWithSuffix]).join('/')
-    }
-
-    result.specPath = this.isExpectation(suffix) ? result.path : result.inversePath
 
     return result
   }

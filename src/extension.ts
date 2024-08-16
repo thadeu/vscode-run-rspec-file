@@ -2,16 +2,9 @@ import * as vscode from 'vscode'
 import get from 'lodash.get'
 
 import FileObject from './FileObject'
+import WorkSpace from './WorkSpace'
 
-import {
-  getWorkspace,
-  factorySettings,
-  isMultipleWorkSpaces,
-  getActiveLine,
-  clearTerminal,
-  createTerminal,
-  log,
-} from './Utils'
+import { getWorkspace, factorySettings, isMultipleWorkSpaces, getActiveLine, clearTerminal, createTerminal, log } from './Utils'
 
 let terminals = {}
 let lastExecuted = ''
@@ -60,7 +53,7 @@ async function bundleRspecFile(line?: any) {
   let workspace = getWorkspace()
   let file = workspace.method.fromFileUri(config)
 
-  log(`Extension[bundleRspecFile]`, JSON.stringify({ workspace, file }))
+  log(`Extension[bundleRspecFile] file`, JSON.stringify({ file }))
 
   let commandText = `${config.customCommand} ${file.specPath}`
 
@@ -68,7 +61,7 @@ async function bundleRspecFile(line?: any) {
     commandText = `${commandText}:${line}`
   }
 
-  log(`Running bundleRspec command ${commandText}`)
+  log(`Extension[bundleRspecFile] command`, commandText)
 
   return execCommand(commandText)
 }
@@ -97,7 +90,8 @@ async function bundleRspecOpenedFiles() {
         file = file.substring(1)
       }
 
-      let fileObject = FileObject.fromRelativeUri(file, config)
+      const workSpace = new WorkSpace(file).toJSON()
+      let fileObject = FileObject.fromRelativeUri(file, config, workSpace)
       let uri = fileObject.specPath
 
       cache[uri] = uri
@@ -121,9 +115,9 @@ async function toggleFile() {
   let workspace = getWorkspace()
 
   let file = workspace.method.fromFileUri(config)
-  log(`WorkSpace[fromFileUri] file`, JSON.stringify(file))
-
   let uri = [workspace?.path, file?.inversePath].filter(Boolean).join('/')
+
+  log(`Extension[toggleFile] uri`, uri)
 
   return vscode.commands.executeCommand('vscode.open', vscode.Uri.file(uri))
 }
