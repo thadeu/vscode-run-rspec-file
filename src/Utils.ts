@@ -1,6 +1,8 @@
 import * as vscode from 'vscode'
+import path from 'node:path'
 import get from 'lodash.get'
 import nodePath from 'path'
+import compact from 'lodash.compact'
 
 import {
   SettingsType,
@@ -23,22 +25,34 @@ export let isMultipleWorkSpaces = () => vscode.workspace.workspaceFolders.length
 export const outputChannel = vscode.window.createOutputChannel('vscode-run-rspec-file')
 
 export function log(...messages: any[]) {
-  return outputChannel.appendLine(messages.join(' '))
+  return outputChannel.appendLine(messages.join('\n'))
 }
 
 export function getWorkspace() {
   const uri = vscode.window.activeTextEditor.document.uri.path
-  log('Utils[getWorkspace] uri', uri)
 
-  const workspace = new WorkSpace(uri)
-  const project = workspace.toJSON()
+  // Looping through all workspace folders
+  // And return the first one that contains the file
+  for (let workspace of vscode.workspace.workspaceFolders) {
+    let parts = uri.split(path.sep).filter(Boolean)
+    let index = parts.findIndex((o) => o === workspace.name)
 
-  log('Utils[getWorkspace] project', JSON.stringify(project))
+    if (index >= 0) {
+      let root = parts.slice(0, index + 1).join('/')
 
-  return {
-    method: workspace,
-    path: project.uri,
-    name: project.name,
+      const workspace = new WorkSpace(uri)
+      const project = workspace.toJSON()
+
+      let item = {
+        uri: project.uri,
+        name: project.name,
+        remoteName: project.remoteName,
+        path: root,
+        method: workspace,
+      }
+
+      return item
+    }
   }
 }
 
@@ -113,8 +127,13 @@ export async function localSettings(): Promise<SettingsType> {
   try {
     let workspace = getWorkspace()
 
-    const files = await vscode.workspace.findFiles('**/.vscode/settings.json')
-    const file = files.find((o) => String(o.path).includes(workspace.path))
+    const files = await vscode.workspace.findFiles(`**/.vscode/settings.json`)
+
+    const file = files.find((o) => {
+      return String(o.path).includes(workspace.path)
+    })
+
+    log('Extension[localSettings] file', file)
 
     if (!file) {
       return null
@@ -125,7 +144,7 @@ export async function localSettings(): Promise<SettingsType> {
 
     return data
   } catch (error) {
-    console.error(error)
+    log('Extension[localSettings] error', error)
 
     vscode.window.showErrorMessage('RSpec Extension: parse settings.json failed')
 
@@ -146,18 +165,20 @@ export async function factorySettings(key?: keyof SettingsType) {
     const local = await localSettings()
 
     let mapping = {
-      customCommand: get(local, SETTINGS_RSPEC_COMMAND_KEY) || globals['customCommand'],
-      folder: get(local, SETTINGS_RSPEC_FOLDER) || globals['folder'],
-      controllerFolder: get(local, SETTINGS_RSPEC_CONTROLLER_FOLDER) || globals['controllerFolder'],
-      suffix: get(local, SETTINGS_SUFFIX_FILE) || globals['suffix'],
-      integration: get(local, SETTINGS_INTEGRATION_TYPE) || globals['integration'],
+      customCommand: get(local, SETTINGS_RSPEC_COMMAND_KEY) ?? globals['customCommand'],
+      folder: get(local, SETTINGS_RSPEC_FOLDER) ?? globals['folder'],
+      controllerFolder: get(local, SETTINGS_RSPEC_CONTROLLER_FOLDER) ?? globals['controllerFolder'],
+      suffix: get(local, SETTINGS_SUFFIX_FILE) ?? globals['suffix'],
+      integration: get(local, SETTINGS_INTEGRATION_TYPE) ?? globals['integration'],
     }
+
+    log('Extension[factorySettings] mapping', JSON.stringify(mapping))
 
     settingsCache[workspaceName] = mapping
 
     return getByKeyOrAll(mapping, key)
   } catch (error) {
-    console.error(error)
+    log('Extension[factorySettings] error', error)
 
     return getByKeyOrAll(globals, key)
   }

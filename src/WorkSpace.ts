@@ -1,44 +1,45 @@
+import * as vscode from 'vscode'
 import path from 'node:path'
-import compact from 'lodash.compact'
-import isEmpty from 'lodash.isempty'
 
 import FileObject from './FileObject'
 
 export default class WorkSpace {
   name: string
+  rootUri: string
   fileUri: string
-  uri: string
+  originalUri: string
 
   constructor(fileUri: string) {
     this.fileUri = fileUri
+    this.rootUri = ''
+
+    for (let workspace of vscode.workspace.workspaceFolders) {
+      let parts = this.fileUri.split(path.sep).filter(Boolean)
+      let index = parts.findIndex((o) => o === workspace.name)
+
+      if (index >= 0) {
+        this.rootUri = ['', ...parts.slice(0, index + 1)].join('/')
+      }
+    }
   }
 
   toJSON() {
-    const fileUriArray = compact(this.fileUri.split(path.sep))
-
-    const findIndexCallback = (o) => new RegExp(`^(app|spec|test|lib)$`).test(o)
-    const index = fileUriArray.findIndex(findIndexCallback)
-    let array = fileUriArray.slice(0, index)
-
-    if (isEmpty(array)) {
-      array = fileUriArray.slice(0, 1)
-    }
-
-    this.uri = array.join('/')
-    this.name = array.slice(-1)[0]
+    this.originalUri = this.rootUri
+    this.name = this.rootUri.split(path.sep).slice(-1)[0]
 
     return {
-      uri: this.uri,
+      uri: this.originalUri,
       name: this.name,
+      remoteName: vscode.env.remoteName,
     }
   }
 
   fromFileUri(config?: any) {
     let fileUri = this.fileUri
 
-    fileUri = fileUri.replace(this.uri, '')
+    fileUri = fileUri.replace(this.originalUri, '')
     fileUri = fileUri.replace(/^\/?\/?/, '')
 
-    return FileObject.fromRelativeUri(fileUri, config)
+    return FileObject.fromRelativeUri(fileUri, config, this.toJSON())
   }
 }
