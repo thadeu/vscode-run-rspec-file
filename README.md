@@ -23,7 +23,7 @@ Facility run RSpec in the VSCode Terminal
 
 Version    | Documentation
 ---------- | -------------
-unreleased | https://github.com/thadeu/vscode-run-rspec-file/blob/main/README.md
+unreleased | https://github.com/thadeu/vscode-run-rspec-file/blob/master/README.md
 
 ## Features
 
