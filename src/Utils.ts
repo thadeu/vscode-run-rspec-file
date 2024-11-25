@@ -23,23 +23,24 @@ export let isMultipleWorkSpaces = () => vscode.workspace.workspaceFolders.length
 export const outputChannel = vscode.window.createOutputChannel('vscode-run-rspec-file')
 
 export function log(...messages: any[]) {
-  return outputChannel.appendLine(messages.join(' '))
+  return outputChannel.appendLine(messages.join('\n'))
 }
 
 export function getWorkspace() {
   const uri = vscode.window.activeTextEditor.document.uri.path
-  log('Utils[getWorkspace] uri', uri)
 
   const workspace = new WorkSpace(uri)
   const project = workspace.toJSON()
 
-  log('Utils[getWorkspace] project', JSON.stringify(project))
-
-  return {
-    method: workspace,
-    path: project.uri,
+  let item = {
+    uri: project.uri,
     name: project.name,
+    remoteName: project.remoteName,
+    path: project.root,
+    method: workspace,
   }
+
+  return item
 }
 
 export function createTerminal(name: string, path: string) {
@@ -113,8 +114,13 @@ export async function localSettings(): Promise<SettingsType> {
   try {
     let workspace = getWorkspace()
 
-    const files = await vscode.workspace.findFiles('**/.vscode/settings.json')
-    const file = files.find((o) => String(o.path).includes(workspace.path))
+    const files = await vscode.workspace.findFiles(`**/.vscode/settings.json`)
+
+    const file = files.find((o) => {
+      return String(o.path).includes(workspace.path)
+    })
+
+    log('Extension[localSettings] file', file)
 
     if (!file) {
       return null
@@ -125,7 +131,7 @@ export async function localSettings(): Promise<SettingsType> {
 
     return data
   } catch (error) {
-    console.error(error)
+    log('Extension[localSettings] error', error)
 
     vscode.window.showErrorMessage('RSpec Extension: parse settings.json failed')
 
@@ -146,18 +152,20 @@ export async function factorySettings(key?: keyof SettingsType) {
     const local = await localSettings()
 
     let mapping = {
-      customCommand: get(local, SETTINGS_RSPEC_COMMAND_KEY) || globals['customCommand'],
-      folder: get(local, SETTINGS_RSPEC_FOLDER) || globals['folder'],
-      controllerFolder: get(local, SETTINGS_RSPEC_CONTROLLER_FOLDER) || globals['controllerFolder'],
-      suffix: get(local, SETTINGS_SUFFIX_FILE) || globals['suffix'],
-      integration: get(local, SETTINGS_INTEGRATION_TYPE) || globals['integration'],
+      customCommand: get(local, SETTINGS_RSPEC_COMMAND_KEY) ?? globals['customCommand'],
+      folder: get(local, SETTINGS_RSPEC_FOLDER) ?? globals['folder'],
+      controllerFolder: get(local, SETTINGS_RSPEC_CONTROLLER_FOLDER) ?? globals['controllerFolder'],
+      suffix: get(local, SETTINGS_SUFFIX_FILE) ?? globals['suffix'],
+      integration: get(local, SETTINGS_INTEGRATION_TYPE) ?? globals['integration'],
     }
+
+    log('Extension[factorySettings] mapping', JSON.stringify(mapping))
 
     settingsCache[workspaceName] = mapping
 
     return getByKeyOrAll(mapping, key)
   } catch (error) {
-    console.error(error)
+    log('Extension[factorySettings] error', error)
 
     return getByKeyOrAll(globals, key)
   }

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
+    "target": "ES2018",
     "outDir": "out",
-    "esModuleInterop": true,
+    "moduleResolution": "node",
     "lib": [
       "es6",
       "dom"
@@ -14,12 +14,14 @@
     ],
     "strict": false,
     "sourceMap": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "isolatedModules": true,
+    "esModuleInterop": true,
   },
   "include": [
     "src/**/*.ts",
     "./node_modules/vscode/vscode.d.ts",
-    "./node_modules/vscode/lib/*",
+    "./node_modules/vscode/lib/*", "spec/WorkSpace.test.ts",
   ],
   "exclude": [
     "node_modules",

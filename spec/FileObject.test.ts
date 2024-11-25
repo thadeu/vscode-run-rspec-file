@@ -1,5 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import * as vscode from 'vscode'
+import { describe, expect, test, vi } from 'vitest'
 import FileObject from '../src/FileObject'
+import WorkSpace from '../src/WorkSpace'
+import { getWorkspace } from '../src/Utils'
 
 describe('#toJSON', () => {
   test('with rails app spec file', () => {
@@ -22,7 +25,10 @@ describe('#toJSON', () => {
   })
 
   test('with rails spec file and custom controllers folder', () => {
-    let filepath = 'spec/requests/aliquots_controller_spec.rb'
+    let workspaceFolders = [{ name: 'todo-bcdd', uri: vscode.Uri.file('/Users/developer/todo-bcdd'), index: 0 }]
+    vi.spyOn(vscode.workspace, 'workspaceFolders', 'get').mockReturnValue(workspaceFolders)
+
+    let filepath = '/Users/developer/todo-bcdd/spec/requests/aliquots_controller_spec.rb'
 
     let config = {
       integration: 'rails',
@@ -31,7 +37,9 @@ describe('#toJSON', () => {
       controllerFolder: 'requests',
     }
 
-    let object = new FileObject(filepath, config)
+    const workSpace = new WorkSpace(filepath).toJSON()
+
+    let object = new FileObject(filepath, config, workSpace)
 
     let result = object.toJSON()
 
@@ -46,6 +54,25 @@ describe('#toJSON', () => {
     expect(result.isRailsApp).toBe(true)
     expect(result.specPath).toBe('spec/requests/aliquots_controller_spec.rb')
     expect(result.inversePath).toBe('app/controllers/aliquots_controller.rb')
+  })
+
+  test('with rails spec file and custom controllers folder', () => {
+    let workspaceFolders = [{ name: 'todo-bcdd', uri: vscode.Uri.file('/Users/developer/todo-bcdd'), index: 0 }]
+    vi.spyOn(vscode.workspace, 'workspaceFolders', 'get').mockReturnValue(workspaceFolders)
+
+    let filepath = '/Users/developer/todo-bcdd/app/controllers/users_controller.rb'
+
+    const workSpace = new WorkSpace(filepath).toJSON()
+    let object = new FileObject(filepath, { controllerFolder: 'requests' }, workSpace)
+    let result = object.toJSON()
+
+    expect(result.name).toBe('controllers/users_controller.rb')
+    expect(result.ext).toBe('.rb')
+    expect(result.namespace).toBe('app')
+
+    expect(result.isRailsApp).toBe(true)
+    expect(result.specPath).toBe('spec/requests/users_controller_spec.rb')
+    expect(result.inversePath).toBe('spec/requests/users_controller_spec.rb')
   })
 
   test('with rails app file', () => {
@@ -68,9 +95,14 @@ describe('#toJSON', () => {
   })
 
   test('with library file', () => {
-    let filepath = 'lib/send_sms.rb'
-    let object = new FileObject(filepath, { integration: 'rails', folder: 'spec', suffix: 'spec' })
+    let workspaceFolders = [{ name: 'todo-bcdd', uri: vscode.Uri.file('/Users/developer/todo-bcdd'), index: 0 }]
+    vi.spyOn(vscode.workspace, 'workspaceFolders', 'get').mockReturnValue(workspaceFolders)
 
+    let filepath = '/Users/developer/todo-bcdd/lib/send_sms.rb'
+
+    const workSpace = new WorkSpace(filepath).toJSON()
+
+    let object = new FileObject(filepath, {}, workSpace)
     let result = object.toJSON()
 
     expect(object.isLibrary(filepath)).toBe(true)
@@ -87,21 +119,26 @@ describe('#toJSON', () => {
   })
 
   test('with library spec file', () => {
-    let filepath = 'spec/lib/send_sms.rb'
-    let object = new FileObject(filepath, { integration: 'rails', folder: 'spec', suffix: 'spec' })
+    let workspaceFolders = [{ name: 'todo-bcdd', uri: vscode.Uri.file('/Users/developer/todo-bcdd'), index: 0 }]
+    vi.spyOn(vscode.workspace, 'workspaceFolders', 'get').mockReturnValue(workspaceFolders)
+
+    let filepath = '/Users/developer/todo-bcdd/spec/lib/send_sms_spec.rb'
+
+    const workSpace = new WorkSpace(filepath).toJSON()
+    let object = new FileObject(filepath, {}, workSpace)
 
     let result = object.toJSON()
 
     expect(object.isLibrary(filepath)).toBe(true)
     expect(object.isExpectation(filepath)).toBe(true)
 
-    expect(result.name).toBe('lib/send_sms.rb')
+    expect(result.name).toBe('lib/send_sms_spec.rb')
     expect(result.ext).toBe('.rb')
     expect(result.namespace).toBe('spec')
-    expect(result.suffix).toBe(undefined)
+    expect(result.suffix).toBe('spec')
 
     expect(result.isRailsApp).toBe(true)
-    expect(result.inversePath).toBe('spec/lib/send_sms_spec.rb')
+    expect(result.inversePath).toBe('lib/send_sms.rb')
     expect(result.specPath).toBe('spec/lib/send_sms_spec.rb')
   })
 
@@ -125,11 +162,49 @@ describe('#toJSON', () => {
   })
 
   test('when workspace use app folder', () => {
-    let fileUri = '/app/models/user.rb'
+    let workspaceFolders = [{ name: 'todo-bcdd', uri: vscode.Uri.file('/Users/developer/todo-bcdd'), index: 0 }]
+    vi.spyOn(vscode.workspace, 'workspaceFolders', 'get').mockReturnValue(workspaceFolders)
 
-    const fileObject = new FileObject(fileUri)
-    const file = fileObject.toJSON()
+    let filepath = '/Users/developer/todo-bcdd/app/models/user.rb'
 
-    expect(file.specPath).toBe('spec/models/user_spec.rb')
+    const workSpace = new WorkSpace(filepath).toJSON()
+
+    let object = new FileObject(filepath, {}, workSpace)
+    let result = object.toJSON()
+
+    expect(result.specPath).toBe('spec/models/user_spec.rb')
+  })
+
+  describe('sibling of app folder', () => {
+    test.only('/User/developer/todo-app/packs/spec/features/review_results/review_results_spec.rb', () => {
+      let filepath = '/Users/developer/todo-app/packs/spec/features/review_results/review_results_spec.rb'
+
+      let workspaceFolders = [{ name: 'todo-app', uri: vscode.Uri.file('/Users/developer/todo-app'), index: 0 }]
+      vi.spyOn(vscode.workspace, 'workspaceFolders', 'get').mockReturnValue(workspaceFolders)
+
+      // @ts-ignore
+      vi.spyOn(vscode.window, 'activeTextEditor', 'get').mockReturnValue({ document: { uri: { path: filepath } } })
+
+      let workspace = getWorkspace()
+      let file = workspace.method.fromFileUri({})
+
+      // console.log(workspace)
+      // console.log(file)
+
+      expect(workspace.name).toBe('todo-app')
+      expect(workspace.uri).toBe('/Users/developer/todo-app')
+      expect(workspace.method.rootUri).toBe('/Users/developer/todo-app')
+      expect(workspace.method.originalUri).toBe('/Users/developer/todo-app')
+      expect(workspace.method.fileUri).toBe('/Users/developer/todo-app/packs/spec/features/review_results/review_results_spec.rb')
+
+      expect(file.namespace).toBe('packs')
+      expect(file.name).toBe('spec/features/review_results/review_results_spec.rb')
+      expect(file.ext).toBe('.rb')
+      expect(file.suffix).toBe('spec')
+
+      expect(file.isRailsApp).toBe(true)
+      expect(file.specPath).toBe('packs/spec/features/review_results/review_results_spec.rb')
+      expect(file.inversePath).toBe('app/features/review_results/review_results.rb')
+    })
   })
 })
