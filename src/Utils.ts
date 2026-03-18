@@ -10,6 +10,7 @@ import {
   SETTINGS_RSPEC_CONTROLLER_FOLDER,
   SETTINGS_SUFFIX_FILE,
   SETTINGS_INTEGRATION_TYPE,
+  SETTINGS_DISABLE_TERMINAL_FOCUS,
   SETTINGS_DEFAULT,
 } from './Constants'
 
@@ -89,6 +90,7 @@ export async function globalSettings(): Promise<SettingsType> {
     let controllerFolder = valueByKey('controller-spec-directory', config)
     let suffix = valueByKey('suffix', config)
     let integration = valueByKey('integration', config)
+    let disableTerminalFocus = valueByKey('disable-terminal-focus', config)
 
     let mapping = {
       ...SETTINGS_DEFAULT,
@@ -97,6 +99,7 @@ export async function globalSettings(): Promise<SettingsType> {
       suffix,
       controllerFolder,
       integration,
+      disableTerminalFocus
     }
 
     globalsCache[workspaceName] = mapping
@@ -151,6 +154,7 @@ export async function factorySettings(key?: keyof SettingsType) {
       controllerFolder: get(local, SETTINGS_RSPEC_CONTROLLER_FOLDER) || globals['controllerFolder'],
       suffix: get(local, SETTINGS_SUFFIX_FILE) || globals['suffix'],
       integration: get(local, SETTINGS_INTEGRATION_TYPE) || globals['integration'],
+      disableTerminalFocus: get(local, SETTINGS_DISABLE_TERMINAL_FOCUS) || globals['disableTerminalFocus']
     }
 
     settingsCache[workspaceName] = mapping
