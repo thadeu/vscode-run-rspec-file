@@ -4,6 +4,7 @@ export const SETTINGS_RSPEC_FOLDER = `${EXTENSION_NAME}.folder`
 export const SETTINGS_RSPEC_CONTROLLER_FOLDER = `${EXTENSION_NAME}.controller-spec-directory`
 export const SETTINGS_SUFFIX_FILE = `${EXTENSION_NAME}.suffix`
 export const SETTINGS_INTEGRATION_TYPE = `${EXTENSION_NAME}.integration`
+export const SETTINGS_DISABLE_TERMINAL_FOCUS = `${EXTENSION_NAME}.disable-terminal-focus`
 
 export type SettingsType = {
   customCommand?: any
@@ -11,6 +12,7 @@ export type SettingsType = {
   suffix?: any
   controllerFolder?: any
   integration?: any
+  disableTerminalFocus?: any
 }
 
 export const SETTINGS_DEFAULT: SettingsType = {
@@ -19,4 +21,5 @@ export const SETTINGS_DEFAULT: SettingsType = {
   suffix: 'spec',
   controllerFolder: 'controllers',
   integration: 'rails',
+  disableTerminalFocus: false
 }

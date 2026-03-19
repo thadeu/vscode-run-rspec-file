@@ -38,12 +38,12 @@ function getTerminal(): vscode.Terminal {
   return get(terminals, name)
 }
 
-function execCommand(commandText: string) {
+function execCommand(commandText: string, disableTerminalFocus?: boolean) {
   let terminal = getTerminal()
 
   terminal.sendText(commandText)
 
-  terminal.show(false)
+  terminal.show(disableTerminalFocus)
 
   lastExecuted = commandText
 }
@@ -51,7 +51,7 @@ function execCommand(commandText: string) {
 async function bundleRspecAll() {
   let config = await factorySettings()
 
-  return execCommand(config.customCommand)
+  return execCommand(config.customCommand, config.disableTerminalFocus)
 }
 
 async function bundleRspecFile(line?: any) {
@@ -70,12 +70,14 @@ async function bundleRspecFile(line?: any) {
 
   log(`Running bundleRspec command ${commandText}`)
 
-  return execCommand(commandText)
+  return execCommand(commandText, config.disableTerminalFocus)
 }
 
-function bundleRspecLastExecuted() {
+async function bundleRspecLastExecuted() {
+  let config = await factorySettings()
+
   if (lastExecuted) {
-    execCommand(lastExecuted)
+    execCommand(lastExecuted, config.disableTerminalFocus)
   } else {
     vscode.window.showWarningMessage('RSpec : Not found last command executed')
   }
@@ -113,7 +115,7 @@ async function bundleRspecOpenedFiles() {
   let specFilename = filePathsUri.join(' ')
   let commandText = `${config.customCommand} ${specFilename}`
 
-  return execCommand(commandText)
+  return execCommand(commandText, config.disableTerminalFocus)
 }
 
 async function toggleFile() {

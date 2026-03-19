@@ -121,6 +121,11 @@
                     "type": "string",
                     "default": "rails",
                     "description": "Set your app mode. Example: \"rails\" or \"other\""
+                },
+                "vscode-run-rspec-file.disable-terminal-focus": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Disable terminal focus when running specs"
                 }
             }
         }
